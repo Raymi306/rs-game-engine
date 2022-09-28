@@ -22,7 +22,7 @@ impl Demo {
 
 impl GameState for Demo {
     fn on_update(&mut self, _elapsed_time: Duration, engine: &mut Engine) -> bool {
-        let frame = engine.pixel_buffer.get_frame();
+        let mut frame = engine.get_screen().buf;
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
             let rgba: [u8; 4] = [
                 (i % 255).try_into().unwrap(),

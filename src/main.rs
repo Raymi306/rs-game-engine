@@ -2,11 +2,12 @@ use std::path::Path;
 use std::time::Duration;
 
 use engine::{
-    run,
     Context,
+    drawing::{draw_rectangle_unchecked, draw_triangle, draw_line},
     Engine,
     GameState,
-    ResourceHandle
+    run,
+    types::{Vec2, Color},
 };
 
 const SCREEN_WIDTH: u32 = 1024;
@@ -14,8 +15,6 @@ const SCREEN_HEIGHT: u32 = 768;
 
 pub struct Demo {
     ctx: Context,
-    image_handle_1: Option<ResourceHandle>,
-    image_handle_2: Option<ResourceHandle>,
 }
 
 impl Demo {
@@ -27,37 +26,20 @@ impl Demo {
         };
         Self {
             ctx,
-            image_handle_1: None,
-            image_handle_2: None,
         }
     }
 }
 
 impl GameState for Demo {
-    fn on_create(&mut self, engine: &mut Engine) -> bool {
-        self.image_handle_1 = Some(
-            engine
-            .resource_manager
-            .load_image(Path::new("resources/images/test_pattern_1.bmp"))
-        );
-        self.image_handle_2 = Some(
-            engine
-            .resource_manager
-            .load_image(Path::new("resources/images/test_pattern_2.bmp"))
-        );
-        true
-    }
-    fn on_update(&mut self, _elapsed_time: Duration, engine: &mut Engine) -> bool {
-
-        let image = engine.resource_manager.get_image(self.image_handle_1.unwrap()).unwrap();
-        let frame = engine.pixel_buffer.get_frame();
-        for y in 0..image.height {
-            for x in 0..image.width * 4 {
-                let frame_index = x + y * SCREEN_WIDTH * 4;
-                let image_index = x + y * image.width * 4;
-                frame[frame_index as usize] = image.bytes[image_index as usize];
-            }
-        }
+    fn on_update(&mut self, elapsed_time: Duration, engine: &mut Engine) -> bool {
+        let mut screen = engine.get_screen();
+        let r1 = (Vec2 { x: 100, y: 100 }, Vec2 { x: 300, y: 500 });
+        let r2 = (Vec2 { x: 150, y: 150 }, Vec2 { x: 450, y: 250 });
+        let t1 = (Vec2 { x: 200, y: 200 }, Vec2 { x: 300, y: 300 }, Vec2 { x: 1000, y: 700 });
+        draw_rectangle_unchecked(r1.0, r1.1, &mut screen, Color::new(0, 255, 0, 255));
+        draw_rectangle_unchecked(r2.0, r2.1, &mut screen, Color::new(0, 0, 255, 255));
+        draw_triangle(t1.0, t1.1, t1.2, &mut screen, Color::new(255, 0, 0, 255));
+        draw_line(t1.0, Vec2 { x: -1, y: 768 }, &mut screen, Color::new(255, 255, 0, 255));
         true
     }
     fn context(&self) -> &Context {
