@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec2 {
@@ -21,7 +21,7 @@ impl Sub for Vec2 {
     fn sub(self, other: Self) -> Self {
         Self {
             x: self.x - other.x,
-            y: self.y - other.y
+            y: self.y - other.y,
         }
     }
 }

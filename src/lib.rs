@@ -1,15 +1,14 @@
-use std::borrow::Borrow;
 use std::time::{Duration, Instant};
 
+use pixels::wgpu::{PowerPreference, RequestAdapterOptions};
 use pixels::{Pixels, PixelsBuilder, SurfaceTexture};
-use pixels::wgpu::{RequestAdapterOptions, PowerPreference};
 use winit::dpi::LogicalSize;
-use winit::event_loop::{EventLoop, ControlFlow};
+use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::{Window, WindowBuilder};
 use winit_input_helper::WinitInputHelper;
 
-use resource::{ResourceManager, ImageResourceSlice};
 use crate::resource::ImageResource;
+use resource::ResourceManager;
 
 pub mod constants;
 pub mod drawing;
@@ -70,8 +69,12 @@ impl Engine {
 }
 
 pub trait GameState {
-    fn on_create(&mut self, _engine: &mut Engine) -> bool { true }
-    fn on_update(&mut self, _elapsed_time: Duration, _engine: &mut Engine) -> bool { true }
+    fn on_create(&mut self, _engine: &mut Engine) -> bool {
+        true
+    }
+    fn on_update(&mut self, _elapsed_time: Duration, _engine: &mut Engine) -> bool {
+        true
+    }
     fn on_exit(&mut self) {}
     fn context(&self) -> &Context;
 }
@@ -88,7 +91,7 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
             .build(&event_loop)
             .expect("Error constructing window")
     };
-    let mut pixels = {
+    let pixels = {
         let window_size = window.inner_size();
         let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
         PixelsBuilder::new(ctx.screen_width, ctx.screen_height, surface_texture)

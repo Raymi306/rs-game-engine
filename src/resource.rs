@@ -1,6 +1,6 @@
+use image::io::Reader as ImageReader;
 use std::collections::HashSet;
 use std::path::Path;
-use image::io::Reader as ImageReader;
 
 #[derive(Copy, Clone, Debug)]
 pub struct ResourceHandle {
@@ -15,46 +15,23 @@ pub trait ImageResource {
     fn get_buf_mut(&mut self) -> &mut [u8];
 }
 
-pub struct ImageResourceVec {
+pub struct Image {
     pub buf: Vec<u8>,
     _width: u32,
     _height: u32,
 }
 
-pub struct ImageResourceSlice<'a> {
-    pub buf: &'a mut[u8],
-    _width: u32,
-    _height: u32,
-}
-
-impl ImageResourceVec {
+impl Image {
     pub fn new(width: u32, height: u32, buf: Vec<u8>) -> Self {
         Self {
             _width: width,
             _height: height,
-            buf
+            buf,
         }
     }
 }
 
-impl<'a> ImageResourceSlice<'a> {
-    pub fn new(width: u32, height: u32, buf: &'a mut [u8]) -> Self {
-        Self {
-            _width: width,
-            _height: height,
-            buf
-        }
-    }
-    /// These setters should only be needed to handle when screen is being resized
-    pub fn set_width(&mut self, width: u32) {
-        self._width = width;
-    }
-    pub fn set_height(&mut self, height: u32) {
-        self._height = height;
-    }
-}
-
-impl ImageResource for ImageResourceVec {
+impl ImageResource for Image {
     #[inline]
     fn width(&self) -> u32 {
         self._width
@@ -73,29 +50,10 @@ impl ImageResource for ImageResourceVec {
     }
 }
 
-impl ImageResource for ImageResourceSlice<'_> {
-    #[inline]
-    fn width(&self) -> u32 {
-        self._width
-    }
-    #[inline]
-    fn height(&self) -> u32 {
-        self._height
-    }
-    #[inline]
-    fn get_buf(&self) -> &[u8] {
-        self.buf
-    }
-    #[inline]
-    fn get_buf_mut(&mut self) -> &mut [u8] {
-        self.buf
-    }
-}
-
 pub struct ResourceManager {
     _handle_id: usize,
     _handles: HashSet<usize>, // can probably be a vec and do a binary search since it will always be sorted..?
-    _images: Vec<Option<ImageResourceVec>>,
+    _images: Vec<Option<Image>>,
     _available_image_indexes: Vec<usize>,
 }
 
@@ -114,7 +72,7 @@ impl ResourceManager {
         self._handles.insert(handle_id);
         let index = match self._available_image_indexes.pop() {
             Some(i) => i,
-            None => self._images.len()
+            None => self._images.len(),
         };
         ResourceHandle {
             id: handle_id,
@@ -130,7 +88,7 @@ impl ResourceManager {
             .to_rgba8();
         let width = image.width();
         let height = image.height();
-        let image = ImageResourceVec::new(width, height, image.into_vec());
+        let image = Image::new(width, height, image.into_vec());
         let handle = self.create_image_handle();
         if handle._index < self._images.len() {
             self._images[handle._index] = Some(image);
@@ -139,7 +97,7 @@ impl ResourceManager {
         }
         handle
     }
-    pub fn get_image(&mut self, handle: ResourceHandle) -> Option<&ImageResourceVec>{
+    pub fn get_image(&mut self, handle: ResourceHandle) -> Option<&Image> {
         if self._handles.contains(&handle.id) {
             return Some(self._images[handle._index].as_ref().unwrap());
         }

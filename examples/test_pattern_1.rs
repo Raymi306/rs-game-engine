@@ -28,7 +28,7 @@ impl GameState for Demo {
                 (i % 255).try_into().unwrap(),
                 (i % 255).try_into().unwrap(),
                 (i % 255).try_into().unwrap(),
-                0xff
+                0xff,
             ];
             pixel.copy_from_slice(&rgba);
         }
@@ -40,6 +40,6 @@ impl GameState for Demo {
 }
 
 fn main() {
-   let game_state = Demo::new();
-   run(game_state);
+    let game_state = Demo::new();
+    run(game_state);
 }

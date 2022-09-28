@@ -1,8 +1,8 @@
 use std::cmp;
 
-use crate::resource::ImageResource;
 use crate::constants::PIXEL_SIZE;
-use crate::types::{Vec2, Color};
+use crate::resource::ImageResource;
+use crate::types::{Color, Vec2};
 
 pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
     // this function taken in part from blit crate
@@ -13,7 +13,10 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
     let src_buf = src.get_buf();
     let dst_buf = dst.get_buf_mut();
 
-    let dst_size = (dst_width as i32, (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32);
+    let dst_size = (
+        dst_width as i32,
+        (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32,
+    );
 
     let min_x = cmp::max(-position.x * PIXEL_SIZE as i32, 0);
     let min_y = cmp::max(-position.y as i32, 0);
@@ -27,7 +30,7 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
                 + ((y as i32 + position.y) * dst_width as i32)
                 * PIXEL_SIZE as i32) as usize;
             let src_index = (x + y * (src_width * PIXEL_SIZE) as i32) as usize;
-            dst_buf[index]     = src_buf[src_index];
+            dst_buf[index] = src_buf[src_index];
             dst_buf[index + 1] = src_buf[src_index + 1];
             dst_buf[index + 2] = src_buf[src_index + 2];
             dst_buf[index + 3] = src_buf[src_index + 3];
@@ -44,7 +47,10 @@ pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, p
     let src_buf = src.get_buf();
     let dst_buf = dst.get_buf_mut();
 
-    let dst_size = (dst_width as i32, (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32);
+    let dst_size = (
+        dst_width as i32,
+        (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32,
+    );
 
     let min_x = cmp::max(-position.x * PIXEL_SIZE as i32, 0);
     let min_y = cmp::max(-position.y as i32, 0);
@@ -80,7 +86,7 @@ pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, p
             let b_out = (src_b * src_a / 255) + (dst_b * dst_a * (255 - src_a) / (255 * 255));
             let a_out = src_a + (dst_a * (255 - src_a) / 255);
 
-            dst_buf[index]     = r_out as u8;
+            dst_buf[index] = r_out as u8;
             dst_buf[index + 1] = g_out as u8;
             dst_buf[index + 2] = b_out as u8;
             dst_buf[index + 3] = a_out as u8;
@@ -95,7 +101,7 @@ fn plot_unchecked(x: u32, y: u32, dst: &mut impl ImageResource, color: Color) {
     let dst_width = dst.width();
     let index = ((x + y * dst_width) * PIXEL_SIZE) as usize;
     let dst_buf = dst.get_buf_mut();
-    dst_buf[index]     = color.r;
+    dst_buf[index] = color.r;
     dst_buf[index + 1] = color.g;
     dst_buf[index + 2] = color.b;
     dst_buf[index + 3] = color.a;
@@ -110,15 +116,14 @@ fn plot(x: i32, y: i32, dst: &mut impl ImageResource, color: Color) {
     }
     let index = ((x + y * dst_width as i32) * PIXEL_SIZE as i32) as usize;
     let dst_buf = dst.get_buf_mut();
-    dst_buf[index]     = color.r;
+    dst_buf[index] = color.r;
     dst_buf[index + 1] = color.g;
     dst_buf[index + 2] = color.b;
     dst_buf[index + 3] = color.a;
 }
 
-/*
-pub fn draw_line(start: Vec2, end: Vec2, dst: impl ImageResource, color: Color) {
-    // bresenham's algorithm shamelessly stolen from wikipedia's pseudocode
+pub fn draw_line(start: Vec2, end: Vec2, dst: &mut impl ImageResource, color: Color) {
+    // Bresenham's algorithm shamelessly stolen from wikipedia's pseudocode
     let distance_x = (end.x - start.x).abs();
     let slope_x;
     if start.x < end.x {
@@ -159,38 +164,67 @@ pub fn draw_line(start: Vec2, end: Vec2, dst: impl ImageResource, color: Color) 
     }
 }
 
-pub fn draw_triangle(p1: Vec2, p2: Vec2, p3: Vec2, dst: impl ImageResource, color: Color) {
+pub fn draw_triangle(p1: Vec2, p2: Vec2, p3: Vec2, dst: &mut impl ImageResource, color: Color) {
     draw_line(p1, p2, dst, color);
     draw_line(p2, p3, dst, color);
     draw_line(p3, p1, dst, color);
 }
 
-pub fn draw_vertical_unchecked(p1: Vec2, length: u32, dst: impl ImageResource, color: Color) {
+pub fn draw_vertical_unchecked(p1: Vec2, length: u32, dst: &mut impl ImageResource, color: Color) {
     let dst_width = dst.width();
+    let dst_buf = dst.get_buf_mut();
     for y in p1.y..length as i32 + p1.y {
-        dst.buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32)     as usize] = color.r;
-        dst.buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 1) as usize] = color.g;
-        dst.buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 2) as usize] = color.b;
-        dst.buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 3) as usize] = color.a;
+        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32) as usize] = color.r;
+        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 1) as usize] = color.g;
+        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 2) as usize] = color.b;
+        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 3) as usize] = color.a;
     }
 }
 
-pub fn draw_horizontal_unchecked(p1: Vec2, length: u32, dst: impl ImageResource, color: Color) {
+pub fn draw_horizontal_unchecked(
+    p1: Vec2,
+    length: u32,
+    dst: &mut impl ImageResource,
+    color: Color,
+) {
     let dst_width = dst.width();
-    for x in (p1.x * PIXEL_SIZE as i32..(length as i32 + p1.x) * PIXEL_SIZE as i32).step_by(PIXEL_SIZE as usize) {
-        dst.buf[(x +     (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.r;
-        dst.buf[(x + 1 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.g;
-        dst.buf[(x + 2 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.b;
-        dst.buf[(x + 3 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.a;
+    let dst_buf = dst.get_buf_mut();
+    for x in (p1.x * PIXEL_SIZE as i32..(length as i32 + p1.x) * PIXEL_SIZE as i32)
+        .step_by(PIXEL_SIZE as usize)
+    {
+        dst_buf[(x + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.r;
+        dst_buf[(x + 1 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.g;
+        dst_buf[(x + 2 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.b;
+        dst_buf[(x + 3 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.a;
     }
 }
 
-pub fn draw_rectangle_unchecked(bottom_left: Vec2, top_right: Vec2, dst: impl ImageResource, color: Color) {
+pub fn draw_rectangle_unchecked(
+    bottom_left: Vec2,
+    top_right: Vec2,
+    dst: &mut impl ImageResource,
+    color: Color,
+) {
     let height = (top_right.y - bottom_left.y) as u32;
     let width = (top_right.x - bottom_left.x) as u32;
     draw_vertical_unchecked(bottom_left, height, dst, color);
     draw_horizontal_unchecked(bottom_left, width, dst, color);
-    draw_vertical_unchecked(Vec2 { x: top_right.x, y: top_right.y - height as i32 }, height, dst, color);
-    draw_horizontal_unchecked(Vec2 { x: bottom_left.x, y: top_right.y }, width, dst, color);
+    draw_vertical_unchecked(
+        Vec2 {
+            x: top_right.x,
+            y: top_right.y - height as i32,
+        },
+        height,
+        dst,
+        color,
+    );
+    draw_horizontal_unchecked(
+        Vec2 {
+            x: bottom_left.x,
+            y: top_right.y,
+        },
+        width,
+        dst,
+        color,
+    );
 }
-*/
