@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::time::{Duration, Instant};
 
 use pixels::{Pixels, PixelsBuilder, SurfaceTexture};
@@ -8,6 +9,7 @@ use winit::window::{Window, WindowBuilder};
 use winit_input_helper::WinitInputHelper;
 
 use resource::{ResourceManager, ImageResourceSlice};
+use crate::resource::ImageResource;
 
 pub mod constants;
 pub mod drawing;
@@ -15,37 +17,61 @@ pub mod resource;
 pub mod timer;
 pub mod types;
 
+#[derive(Clone, Debug)]
 pub struct Context {
     pub screen_width: u32,
     pub screen_height: u32,
     pub vsync_enabled: bool,
 }
 
-pub struct Engine<'a> {
-    _pixels: Pixels,
-    screen: ImageResourceSlice<'a>,
+pub struct Screen {
+    pixels: Pixels,
+    screen_width: u32,
+    screen_height: u32,
+}
+
+impl ImageResource for Screen {
+    fn width(&self) -> u32 {
+        self.screen_width
+    }
+
+    fn height(&self) -> u32 {
+        self.screen_height
+    }
+
+    fn get_buf(&self) -> &[u8] {
+        unimplemented!("Pixels doesn't provide a read only view")
+    }
+
+    fn get_buf_mut(&mut self) -> &mut [u8] {
+        self.pixels.get_frame()
+    }
+}
+
+pub struct Engine {
+    pub screen: Screen,
     pub window: Window,
     pub resource_manager: ResourceManager,
     pub input: WinitInputHelper,
 }
 
-impl Engine<'_> {
+impl Engine {
     pub fn resize_buffer(&mut self, width: u32, height: u32) {
-        self._pixels.resize_buffer(width, height);
-        self.screen.set_width(width);
-        self.screen.set_height(height);
+        self.screen.screen_width = width;
+        self.screen.screen_height = height;
+        self.screen.pixels.resize_buffer(width, height);
     }
     pub fn resize_surface(&mut self, width: u32, height: u32) {
-        self._pixels.resize_surface(width, height);
+        self.screen.pixels.resize_surface(width, height);
     }
     pub fn render(&mut self) {
-        self._pixels.render().unwrap();
+        self.screen.pixels.render().unwrap();
     }
 }
 
 pub trait GameState {
-    fn on_create(&mut self, _engine: &mut Engine) -> bool {true}
-    fn on_update(&mut self, _elapsed_time: Duration, _engine: &mut Engine) -> bool {true}
+    fn on_create(&mut self, _engine: &mut Engine) -> bool { true }
+    fn on_update(&mut self, _elapsed_time: Duration, _engine: &mut Engine) -> bool { true }
     fn on_exit(&mut self) {}
     fn context(&self) -> &Context;
 }
@@ -69,7 +95,7 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
             .request_adapter_options(RequestAdapterOptions {
                 power_preference: PowerPreference::HighPerformance,
                 force_fallback_adapter: false,
-                compatible_surface: None
+                compatible_surface: None,
             })
             .enable_vsync(ctx.vsync_enabled)
             .build()
@@ -77,8 +103,11 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
     };
     let resource_manager = ResourceManager::new();
     let mut engine = Engine {
-        _pixels: pixels,
-        screen: ImageResourceSlice::new(ctx.screen_width, ctx.screen_height, pixels.get_frame()),
+        screen: Screen {
+            pixels: pixels,
+            screen_width: ctx.screen_width,
+            screen_height: ctx.screen_height,
+        },
         window,
         resource_manager,
         input,
