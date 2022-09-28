@@ -2,7 +2,13 @@ use std::path::Path;
 use std::time::Duration;
 
 use engine::{
-    drawing::blit, resource::ResourceHandle, run, types::Vec2, Context, Engine, GameState,
+    drawing::blit,
+    resource::{ResourceHandle, ImageResource},
+    run,
+    types::Vec2,
+    Context,
+    Engine,
+    GameState,
 };
 
 const SCREEN_WIDTH: u32 = 1024;
@@ -43,21 +49,20 @@ impl GameState for Demo {
         engine
             .window
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
-        let frame = engine.pixel_buffer.get_frame();
+        let screen = &mut engine.screen;
         let image_1 = engine
             .resource_manager
             .get_image(self.image_handle_1.unwrap())
             .unwrap();
-        for y in (0..PIXELS_HEIGHT).step_by(image_1.height as usize) {
-            for x in (0..PIXELS_WIDTH).step_by(image_1.width as usize) {
+        for y in (0..PIXELS_HEIGHT).step_by(image_1.height() as usize) {
+            for x in (0..PIXELS_WIDTH).step_by(image_1.width() as usize) {
                 blit(
-                    frame,
-                    &image_1,
+                    image_1,
+                    screen,
                     Vec2 {
                         x: x as i32,
                         y: y as i32,
                     },
-                    PIXELS_WIDTH,
                 );
             }
         }
