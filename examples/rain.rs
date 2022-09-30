@@ -12,7 +12,7 @@ use engine::{
 
 const SCREEN_WIDTH: u32 = 1024;
 const SCREEN_HEIGHT: u32 = 768;
-const GRAVITY: f32 = 400.0;
+const GRAVITY: f32 = 900.0;
 
 pub struct Demo {
     ctx: Context,
@@ -87,7 +87,7 @@ impl GameState for Demo {
                 Color::new(50, 50, 100, 255),
             );
         }
-        for i in 0..300 {
+        for i in 0..700 {
             let droplet = &mut self.raindrops[i];
             let gravity = GRAVITY * elapsed_time.as_secs_f32() * 1.1;
             droplet.0.y += gravity;
