@@ -2,7 +2,7 @@ use std::cmp;
 
 use crate::constants::PIXEL_SIZE;
 use crate::resource::ImageResource;
-use crate::types::{Color, Vec2};
+use crate::types::{Color, Vec2, Rect};
 
 pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
     // this function taken in part from blit crate
@@ -34,6 +34,41 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
             dst_buf[index + 1] = src_buf[src_index + 1];
             dst_buf[index + 2] = src_buf[src_index + 2];
             dst_buf[index + 3] = src_buf[src_index + 3];
+        }
+    }
+}
+
+pub fn blit_rect(src: &impl ImageResource, src_rect: Rect, dst: &mut impl ImageResource, position: Vec2) {
+    // this function taken in part from blit crate
+    let src_width = src.width() as i32;
+    let dst_width = dst.width() as i32;
+    let dst_height = dst.height() as i32;
+
+    let src_buf = src.get_buf_u32();
+    let dst_buf = dst.get_buf_u32_mut();
+
+    let dst_start = (
+        cmp::max(position.x, 0),
+        cmp::max(position.y, 0)
+    );
+    let dst_end = (
+        cmp::min(position.x + src_rect.bottom_right().x, dst_width),
+        cmp::min(position.y + src_rect.bottom_right().y, dst_height)
+    );
+
+    for y in dst_start.1..dst_end.1 {
+        let src_y = y - position.y + src_rect.top_left().y;
+        let dst_y_index = y * dst_width;
+        let src_y_index = src_y * src_width;
+        for x in dst_start.0..dst_end.0 {
+            let src_x = x - position.x + src_rect.top_left().x;
+            let src_index = (src_x + src_y_index) as usize;
+            let dst_index = (x + dst_y_index) as usize;
+            if !(src_index >= src_buf.len() || dst_index >= dst_buf.len()) {
+                dst_buf[dst_index] = src_buf[src_index];
+            } else {
+                println!("{}, {}", dst_index, src_index);
+            }
         }
     }
 }
@@ -205,16 +240,21 @@ pub fn draw_rectangle_unchecked(
     dst: &mut impl ImageResource,
     color: Color,
 ) {
-    let height = (top_right.y - bottom_left.y) as u32;
+    let height = (top_right.y - bottom_left.y).abs() as u32;
     let width = (top_right.x - bottom_left.x) as u32;
-    draw_vertical_unchecked(bottom_left, height, dst, color);
-    draw_horizontal_unchecked(bottom_left, width, dst, color);
     draw_vertical_unchecked(
         Vec2 {
-            x: top_right.x,
-            y: top_right.y - height as i32,
+            x: bottom_left.x,
+            y: top_right.y,
         },
         height,
+        dst,
+        color
+    );
+    draw_horizontal_unchecked(bottom_left, width, dst, color);
+    draw_vertical_unchecked(
+        top_right,
+        height + 1, // Why + 1??
         dst,
         color,
     );

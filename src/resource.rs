@@ -13,6 +13,8 @@ pub trait ImageResource {
     fn height(&self) -> u32;
     fn get_buf(&self) -> &[u8];
     fn get_buf_mut(&mut self) -> &mut [u8];
+    fn get_buf_u32(&self) -> &[u32];
+    fn get_buf_u32_mut(&mut self) -> &mut [u32];
 }
 
 pub struct Image {
@@ -48,6 +50,19 @@ impl ImageResource for Image {
     fn get_buf_mut(&mut self) -> &mut [u8] {
         &mut self.buf
     }
+    #[inline]
+    fn get_buf_u32(&self) -> &[u32] {
+        unsafe {
+            &self.buf.align_to::<u32>().1
+        }
+    }
+    #[inline]
+    fn get_buf_u32_mut(&mut self) -> &mut [u32] {
+        unsafe {
+            self.buf.align_to_mut::<u32>().1
+        }
+    }
+
 }
 
 pub struct ResourceManager {

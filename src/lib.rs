@@ -33,17 +33,22 @@ impl ImageResource for Screen {
     fn width(&self) -> u32 {
         self.screen_width
     }
-
     fn height(&self) -> u32 {
         self.screen_height
     }
-
     fn get_buf(&self) -> &[u8] {
-        unimplemented!("Pixels doesn't provide a read only view")
+        unimplemented!("Pixels doesn't provide a read-only view")
     }
-
     fn get_buf_mut(&mut self) -> &mut [u8] {
         self.pixels.get_frame()
+    }
+    fn get_buf_u32(&self) -> &[u32] {
+        unimplemented!("Pixels doesn't provide a read-only view")
+    }
+    fn get_buf_u32_mut(&mut self) -> &mut [u32] {
+        unsafe {
+            self.pixels.get_frame().align_to_mut::<u32>().1
+        }
     }
 }
 
