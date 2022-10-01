@@ -39,36 +39,26 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
 }
 
 pub fn blit_rect(src: &impl ImageResource, src_rect: Rect, dst: &mut impl ImageResource, position: Vec2) {
-    // this function taken in part from blit crate
+    // stolen shamelessly from OneLoneCoder's PixelGameEngine
+    let mut src_rect = src_rect;
     let src_width = src.width() as i32;
+    let src_height = src.height() as i32;
+    if src_rect.right() > src_width {
+        src_rect.width = 0;
+    }
+    if src_rect.bottom() > src_height {
+        src_rect.height = 0;
+    }
     let dst_width = dst.width() as i32;
     let dst_height = dst.height() as i32;
-
     let src_buf = src.get_buf_u32();
     let dst_buf = dst.get_buf_u32_mut();
 
-    let dst_start = (
-        cmp::max(position.x, 0),
-        cmp::max(position.y, 0)
-    );
-    let dst_end = (
-        cmp::min(position.x + src_rect.bottom_right().x, dst_width),
-        cmp::min(position.y + src_rect.bottom_right().y, dst_height)
-    );
-
-    for y in dst_start.1..dst_end.1 {
-        let src_y = y - position.y + src_rect.top_left().y;
-        let dst_y_index = y * dst_width;
-        let src_y_index = src_y * src_width;
-        for x in dst_start.0..dst_end.0 {
-            let src_x = x - position.x + src_rect.top_left().x;
-            let src_index = (src_x + src_y_index) as usize;
-            let dst_index = (x + dst_y_index) as usize;
-            if !(src_index >= src_buf.len() || dst_index >= dst_buf.len()) {
-                dst_buf[dst_index] = src_buf[src_index];
-            } else {
-                println!("{}, {}", dst_index, src_index);
-            }
+    for y in 0..src_rect.height as i32 {
+        for x in 0..src_rect.width  as i32 {
+            let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
+            let src_index = (x + src_rect.top_left().x + (y + src_rect.top_left().y) * src_width) as usize;
+            dst_buf[dst_index] = src_buf[src_index];
         }
     }
 }
