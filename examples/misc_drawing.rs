@@ -31,8 +31,8 @@ impl GameState for Demo {
             .window
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
         let screen = &mut engine.screen;
-        let r1 = (Vec2 { x: 100, y: 100 }, Vec2 { x: 300, y: 500 });
-        let r2 = (Vec2 { x: 150, y: 150 }, Vec2 { x: 450, y: 250 });
+        let r1 = (Vec2 { x: 100, y: 500 }, Vec2 { x: 300, y: 100 });
+        let r2 = (Vec2 { x: 150, y: 250 }, Vec2 { x: 450, y: 150 });
         let t1 = (
             Vec2 { x: 200, y: 200 },
             Vec2 { x: 300, y: 300 },
