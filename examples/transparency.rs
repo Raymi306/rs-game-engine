@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use engine::{
     drawing::{blit, blit_with_alpha},
-    resource::{ImageResource, ResourceHandle},
+    resource::{ImageResource, ImageHandle},
     run,
     types::Vec2,
     Context, Engine, GameState,
@@ -16,8 +16,8 @@ const PIXELS_HEIGHT: u32 = 768 / 2;
 
 pub struct Demo {
     ctx: Context,
-    image_handle_1: Option<ResourceHandle>,
-    image_handle_2: Option<ResourceHandle>,
+    image_handle_1: Option<ImageHandle>,
+    image_handle_2: Option<ImageHandle>,
 }
 
 impl Demo {

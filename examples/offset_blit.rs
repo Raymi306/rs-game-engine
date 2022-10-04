@@ -6,7 +6,7 @@ use winit::event::VirtualKeyCode;
 use engine::{
     constants::PIXEL_SIZE,
     drawing::{blit, blit_rect, draw_rectangle_unchecked},
-    resource::{ResourceHandle, ImageResource},
+    resource::{ImageHandle, ImageResource},
     run,
     types::{Vec2, Rect, Color},
     Context,
@@ -19,10 +19,17 @@ const SCREEN_HEIGHT: u32 = 768;
 const PIXELS_WIDTH: u32 = 1024 / 4;
 const PIXELS_HEIGHT: u32 = 768 / 4;
 
+#[derive(PartialEq, Debug)]
+enum Mode {
+    MoveRect,
+    MovePosition,
+}
 pub struct Demo {
     ctx: Context,
-    image_handle_1: Option<ResourceHandle>,
+    image_handle_1: Option<ImageHandle>,
     rect: Rect,
+    position: Vec2,
+    mode: Mode,
 }
 
 impl Demo {
@@ -46,6 +53,11 @@ impl Demo {
             ctx,
             image_handle_1: None,
             rect,
+            position: Vec2 {
+                x: (PIXELS_WIDTH / 2) as i32,
+                y: (PIXELS_HEIGHT / 2) as i32,
+            },
+            mode: Mode::MoveRect,
         }
     }
 }
@@ -90,24 +102,41 @@ impl GameState for Demo {
             image_1,
             self.rect,
             screen,
-            Vec2 {
-                //x: 0,
-                //y: 0,
-                x: (PIXELS_WIDTH / 2) as i32,
-                y: (PIXELS_HEIGHT / 2) as i32,
-            },
+            self.position,
         );
-        if engine.input.key_pressed(VirtualKeyCode::Left) && self.rect.left() - 1 >= 0 {
-            self.rect.offset(Vec2 { x: -1, y: 0 });
+        if engine.input.key_released(VirtualKeyCode::M) {
+            self.mode = match self.mode {
+                Mode::MoveRect => Mode::MovePosition,
+                Mode::MovePosition => Mode::MoveRect,
+            }
         }
-        if engine.input.key_pressed(VirtualKeyCode::Right) && self.rect.right() + 1 < PIXELS_WIDTH as i32 {
-            self.rect.offset(Vec2 { x: 1, y: 0 });
+        if engine.input.key_held(VirtualKeyCode::Left) {
+            if self.mode == Mode::MoveRect && self.rect.left() - 1 >= 0 {
+                self.rect.offset(Vec2 { x: -1, y: 0 });
+            } else if self.mode == Mode::MovePosition {
+                self.position.x -= 1;
+            }
         }
-        if engine.input.key_pressed(VirtualKeyCode::Up) && self.rect.top() - 1 >= 0 {
-            self.rect.offset(Vec2 { x: 0, y: -1 });
+        if engine.input.key_held(VirtualKeyCode::Right) {
+            if self.mode == Mode::MoveRect && self.rect.right() + 1 < PIXELS_WIDTH as i32 {
+                self.rect.offset(Vec2 { x: 1, y: 0 });
+            } else if self.mode == Mode::MovePosition {
+                self.position.x += 1;
+            }
         }
-        if engine.input.key_pressed(VirtualKeyCode::Down) && self.rect.bottom() + 1 < PIXELS_HEIGHT as i32 {
-            self.rect.offset(Vec2 { x: 0, y: 1 });
+        if engine.input.key_held(VirtualKeyCode::Up) {
+            if self.mode == Mode::MoveRect && self.rect.top() - 1 >= 0 {
+                self.rect.offset(Vec2 { x: 0, y: -1 });
+            } else if self.mode == Mode::MovePosition {
+                self.position.y -= 1;
+            }
+        }
+        if engine.input.key_held(VirtualKeyCode::Down) {
+            if self.mode == Mode::MoveRect && self.rect.bottom() + 1 < PIXELS_HEIGHT as i32 {
+                self.rect.offset(Vec2 { x: 0, y: 1 });
+            } else if self.mode == Mode::MovePosition {
+                self.position.y += 1;
+            }
         }
         true
     }

@@ -152,10 +152,19 @@ impl Color {
     }
 }
 
-/*
 impl From<u32> for Color {
+    // TODO TEST ME
     fn from(num: u32) -> Self {
-
+        let a = (num & 0x00ff0000) >> 24;
+        let b = (num & 0x0000ff00) >> 16;
+        let g = (num & 0x000000ff) >> 8;
+        let r = num & 0xff000000;
+        Color::new(r as u8, g as u8, b as u8, a as u8)
     }
 }
-*/
+
+impl From<Color> for u32 {
+    fn from(color: Color) -> Self {
+        ((color.a as u32) << 24) | ((color.b as u32) << 16) | ((color.g as u32) << 8) | color.r as u32
+    }
+}

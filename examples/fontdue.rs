@@ -1,11 +1,13 @@
 use std::path::Path;
 use std::time::Duration;
 
+use fontdue::FontSettings;
+
 use engine::{
-    drawing::blit,
-    resource::{ImageHandle, ImageResource},
+    drawing::draw_text,
+    resource::FontHandle,
     run,
-    types::Vec2,
+    types::{Vec2, Color},
     Context,
     Engine,
     GameState,
@@ -13,12 +15,10 @@ use engine::{
 
 const SCREEN_WIDTH: u32 = 1024;
 const SCREEN_HEIGHT: u32 = 768;
-const PIXELS_WIDTH: u32 = 1024 / 2;
-const PIXELS_HEIGHT: u32 = 768 / 2;
 
 pub struct Demo {
     ctx: Context,
-    image_handle_1: Option<ImageHandle>,
+    font_handle_1: Option<FontHandle>,
 }
 
 impl Demo {
@@ -30,18 +30,21 @@ impl Demo {
         };
         Self {
             ctx,
-            image_handle_1: None,
+            font_handle_1: None,
         }
     }
 }
 
 impl GameState for Demo {
     fn on_create(&mut self, engine: &mut Engine) -> bool {
-        engine.resize_buffer(PIXELS_WIDTH, PIXELS_HEIGHT);
-        self.image_handle_1 = Some(
+        let settings = FontSettings {
+            scale: 10.0,
+            ..FontSettings::default()
+        };
+        self.font_handle_1 = Some(
             engine
                 .resource_manager
-                .load_image(Path::new("resources/images/test_pattern_1.bmp")),
+                .load_font(Path::new("resources/fonts/JetbrainsMonoRegular.ttf"), settings),
         );
         true
     }
@@ -50,22 +53,14 @@ impl GameState for Demo {
             .window
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
         let screen = &mut engine.screen;
-        let image_1 = engine
+        screen.clear(Color::new(0, 0, 0, 255));
+        let font = engine
             .resource_manager
-            .get_image(self.image_handle_1.unwrap())
+            .get_font(self.font_handle_1.unwrap())
             .unwrap();
-        for y in (0..PIXELS_HEIGHT).step_by(image_1.height() as usize) {
-            for x in (0..PIXELS_WIDTH).step_by(image_1.width() as usize) {
-                blit(
-                    image_1,
-                    screen,
-                    Vec2 {
-                        x: x as i32,
-                        y: y as i32,
-                    },
-                );
-            }
-        }
+        let layout = &mut engine.font_helper.default_layout;
+        let text = &format!("Render time: {}ms", elapsed_time.as_millis());
+        draw_text(font, layout, text, 40.0, Color::new(255, 255, 255, 255), screen, Vec2 { x: 10, y: 10 });
         true
     }
     fn context(&self) -> &Context {

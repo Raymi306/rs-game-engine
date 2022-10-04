@@ -1,7 +1,10 @@
 use std::cmp;
 
+use fontdue::Font;
+use fontdue::layout::{Layout, LayoutSettings, TextStyle};
+
 use crate::constants::PIXEL_SIZE;
-use crate::resource::ImageResource;
+use crate::resource::{ImageResource, Image};
 use crate::types::{Color, Vec2, Rect};
 
 pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
@@ -26,8 +29,8 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
     for y in min_y..max_y {
         for x in (min_x..max_x * PIXEL_SIZE as i32).step_by(PIXEL_SIZE as usize) {
             let index = // TODO rethink these casts?
-                ((x as i32 + (position.x * PIXEL_SIZE as i32))
-                + ((y as i32 + position.y) * dst_width as i32)
+                ((x + (position.x * PIXEL_SIZE as i32))
+                + ((y + position.y) * dst_width as i32)
                 * PIXEL_SIZE as i32) as usize;
             let src_index = (x + y * (src_width * PIXEL_SIZE) as i32) as usize;
             dst_buf[index] = src_buf[src_index];
@@ -39,23 +42,24 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
 }
 
 pub fn blit_rect(src: &impl ImageResource, src_rect: Rect, dst: &mut impl ImageResource, position: Vec2) {
-    // stolen shamelessly from OneLoneCoder's PixelGameEngine
-    let mut src_rect = src_rect;
+    // stolen shamelessly from OneLoneCoder's PixelGameEngine with bounds checking that ended up
+    // looking like blit crate's
     let src_width = src.width() as i32;
     let src_height = src.height() as i32;
-    if src_rect.right() > src_width {
-        src_rect.width = 0;
-    }
-    if src_rect.bottom() > src_height {
-        src_rect.height = 0;
-    }
     let dst_width = dst.width() as i32;
     let dst_height = dst.height() as i32;
+    let min_x = cmp::max(-position.x, 0);
+    let min_y = cmp::max(-position.y, 0);
+    let max_x = cmp::min(dst_width - position.x, src_rect.width as i32);
+    let max_y = cmp::min(dst_height - position.y, src_rect.height as i32);
+    if src_rect.right() > src_width || src_rect.bottom() > src_height {
+        return
+    }
     let src_buf = src.get_buf_u32();
     let dst_buf = dst.get_buf_u32_mut();
 
-    for y in 0..src_rect.height as i32 {
-        for x in 0..src_rect.width  as i32 {
+    for y in min_y..max_y as i32 {
+        for x in min_x..max_x as i32 {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
             let src_index = (x + src_rect.top_left().x + (y + src_rect.top_left().y) * src_width) as usize;
             dst_buf[dst_index] = src_buf[src_index];
@@ -257,4 +261,34 @@ pub fn draw_rectangle_unchecked(
         dst,
         color,
     );
+}
+
+
+pub fn draw_text(font: &Font, layout: &mut Layout, text: &str, size: f32, color: Color, screen: &mut impl ImageResource, offset: Vec2) {
+    // Note that the alpha channel in color is currently ignored
+    layout.reset(&LayoutSettings {
+        ..LayoutSettings::default()
+    });
+    layout.append(&[font], &TextStyle::new(text, size, 0));
+    for glyph in layout.glyphs() {
+        let (metrics, coverage) = font.rasterize(glyph.parent, size);
+        let glyph_image_buf_32 = coverage.iter().map(|mask| mask_to_u32(color.r, color.g, color.b, *mask)).collect::<Vec<u32>>();
+        let glyph_image_buf = unsafe {
+            glyph_image_buf_32.align_to::<u8>().1.to_vec()
+        };
+        let glyph_image = Image::new(metrics.width as u32, metrics.height as u32, glyph_image_buf);
+        blit_with_alpha(
+            &glyph_image,
+            screen,
+            Vec2 {
+                x: glyph.x as i32 + offset.x,
+                y: glyph.y as i32 + offset.y,
+            },
+        );
+    }
+}
+
+#[inline]
+pub fn mask_to_u32(r: u8, g: u8, b: u8, mask: u8) -> u32 {
+    ((mask as u32) << 24) | ((r as u32) << 16) | ((g as u32) << 8) | b as u32
 }

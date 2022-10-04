@@ -7,8 +7,8 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::{Window, WindowBuilder};
 use winit_input_helper::WinitInputHelper;
 
-use crate::resource::ImageResource;
-use resource::ResourceManager;
+use resource::{ResourceManager, ImageResource, FontHelper};
+use types::Color;
 
 pub mod constants;
 pub mod drawing;
@@ -27,6 +27,13 @@ pub struct Screen {
     pixels: Pixels,
     screen_width: u32,
     screen_height: u32,
+}
+
+impl Screen {
+    #[inline]
+    pub fn clear(&mut self, color: Color) {
+        self.get_buf_u32_mut().fill(color.into());
+    }
 }
 
 impl ImageResource for Screen {
@@ -56,6 +63,7 @@ pub struct Engine {
     pub screen: Screen,
     pub window: Window,
     pub resource_manager: ResourceManager,
+    pub font_helper: FontHelper,
     pub input: WinitInputHelper,
 }
 
@@ -118,6 +126,7 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
         },
         window,
         resource_manager,
+        font_helper: FontHelper::new(),
         input,
     };
     let mut t1 = Instant::now();

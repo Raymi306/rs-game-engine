@@ -2,9 +2,7 @@ use rand::prelude::*;
 use std::time::Duration;
 
 use engine::{
-    constants::PIXEL_SIZE,
     drawing::draw_line,
-    resource::ImageResource,
     run,
     types::{Color, Vec2F as Vec2},
     Context, Engine, GameState,
@@ -62,13 +60,7 @@ impl GameState for Demo {
             .window
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
         let screen = &mut engine.screen;
-        let buf = screen.get_buf_mut();
-        for i in (0..buf.len()).step_by(PIXEL_SIZE as usize) {
-            buf[i] = 0;
-            buf[i + 1] = 0;
-            buf[i + 2] = 0;
-            buf[i + 3] = 255;
-        }
+        screen.clear(Color::new(0, 0, 0, 255));
         for i in 0..700 {
             let droplet = self.raindrops[i];
             draw_line(
