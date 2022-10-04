@@ -7,7 +7,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::{Window, WindowBuilder};
 use winit_input_helper::WinitInputHelper;
 
-use resource::{ResourceManager, ImageResource, FontHelper};
+use resource::{FontHelper, ImageResource, ResourceManager};
 use types::Color;
 
 pub mod constants;
@@ -53,9 +53,7 @@ impl ImageResource for Screen {
         unimplemented!("Pixels doesn't provide a read-only view")
     }
     fn get_buf_u32_mut(&mut self) -> &mut [u32] {
-        unsafe {
-            self.pixels.get_frame().align_to_mut::<u32>().1
-        }
+        unsafe { self.pixels.get_frame().align_to_mut::<u32>().1 }
     }
 }
 

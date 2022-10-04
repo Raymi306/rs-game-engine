@@ -2,8 +2,8 @@ use std::collections::HashSet;
 use std::fs::read;
 use std::path::Path;
 
+use fontdue::layout::{CoordinateSystem, Layout};
 use fontdue::{Font, FontSettings};
-use fontdue::layout::{Layout, CoordinateSystem};
 use image::io::Reader as ImageReader;
 
 #[derive(Copy, Clone, Debug)]
@@ -62,17 +62,12 @@ impl ImageResource for Image {
     }
     #[inline]
     fn get_buf_u32(&self) -> &[u32] {
-        unsafe {
-            &self.buf.align_to::<u32>().1
-        }
+        unsafe { &self.buf.align_to::<u32>().1 }
     }
     #[inline]
     fn get_buf_u32_mut(&mut self) -> &mut [u32] {
-        unsafe {
-            self.buf.align_to_mut::<u32>().1
-        }
+        unsafe { self.buf.align_to_mut::<u32>().1 }
     }
-
 }
 
 pub struct FontHelper {
@@ -82,7 +77,7 @@ pub struct FontHelper {
 impl FontHelper {
     pub fn new() -> Self {
         Self {
-            default_layout: Layout::new(CoordinateSystem::PositiveYDown)
+            default_layout: Layout::new(CoordinateSystem::PositiveYDown),
         }
     }
 }

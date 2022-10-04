@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use engine::{
     drawing::{blit, blit_with_alpha},
-    resource::{ImageResource, ImageHandle},
+    resource::{ImageHandle, ImageResource},
     run,
     types::Vec2,
     Context, Engine, GameState,

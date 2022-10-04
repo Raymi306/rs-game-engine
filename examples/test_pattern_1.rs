@@ -1,12 +1,6 @@
 use std::time::Duration;
 
-use engine::{
-    Context,
-    Engine,
-    GameState,
-    resource::ImageResource,
-    run,
-};
+use engine::{resource::ImageResource, run, Context, Engine, GameState};
 
 const SCREEN_WIDTH: u32 = 1024;
 const SCREEN_HEIGHT: u32 = 768;

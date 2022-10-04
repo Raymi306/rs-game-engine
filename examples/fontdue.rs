@@ -7,10 +7,8 @@ use engine::{
     drawing::draw_text,
     resource::FontHandle,
     run,
-    types::{Vec2, Color},
-    Context,
-    Engine,
-    GameState,
+    types::{Color, Vec2},
+    Context, Engine, GameState,
 };
 
 const SCREEN_WIDTH: u32 = 1024;
@@ -41,11 +39,10 @@ impl GameState for Demo {
             scale: 10.0,
             ..FontSettings::default()
         };
-        self.font_handle_1 = Some(
-            engine
-                .resource_manager
-                .load_font(Path::new("resources/fonts/JetbrainsMonoRegular.ttf"), settings),
-        );
+        self.font_handle_1 = Some(engine.resource_manager.load_font(
+            Path::new("resources/fonts/JetbrainsMonoRegular.ttf"),
+            settings,
+        ));
         true
     }
     fn on_update(&mut self, elapsed_time: Duration, engine: &mut Engine) -> bool {
@@ -60,7 +57,15 @@ impl GameState for Demo {
             .unwrap();
         let layout = &mut engine.font_helper.default_layout;
         let text = &format!("Render time: {}ms", elapsed_time.as_millis());
-        draw_text(font, layout, text, 40.0, Color::new(255, 255, 255, 255), screen, Vec2 { x: 10, y: 10 });
+        draw_text(
+            font,
+            layout,
+            text,
+            40.0,
+            Color::new(255, 255, 255, 255),
+            screen,
+            Vec2 { x: 10, y: 10 },
+        );
         true
     }
     fn context(&self) -> &Context {

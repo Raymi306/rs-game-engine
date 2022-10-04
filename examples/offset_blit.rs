@@ -8,10 +8,8 @@ use engine::{
     drawing::{blit, blit_rect, draw_rectangle_unchecked},
     resource::{ImageHandle, ImageResource},
     run,
-    types::{Vec2, Rect, Color},
-    Context,
-    Engine,
-    GameState,
+    types::{Color, Rect, Vec2},
+    Context, Engine, GameState,
 };
 
 const SCREEN_WIDTH: u32 = 1024;
@@ -44,7 +42,7 @@ impl Demo {
         let rect = Rect::new(
             Vec2 {
                 x: sprite_width as i32,
-                y: (sprite_height * 2) as i32
+                y: (sprite_height * 2) as i32,
             },
             sprite_width,
             sprite_height,
@@ -89,21 +87,14 @@ impl GameState for Demo {
             .resource_manager
             .get_image(self.image_handle_1.unwrap())
             .unwrap();
-        blit(
-            image_1,
+        blit(image_1, screen, Vec2 { x: 0, y: 0 });
+        draw_rectangle_unchecked(
+            self.rect.bottom_left(),
+            self.rect.top_right(),
             screen,
-            Vec2 {
-                x: 0,
-                y: 0,
-            }
+            Color::new(255, 255, 0, 255),
         );
-        draw_rectangle_unchecked(self.rect.bottom_left(), self.rect.top_right(), screen, Color::new(255, 255, 0, 255));
-        blit_rect(
-            image_1,
-            self.rect,
-            screen,
-            self.position,
-        );
+        blit_rect(image_1, self.rect, screen, self.position);
         if engine.input.key_released(VirtualKeyCode::M) {
             self.mode = match self.mode {
                 Mode::MoveRect => Mode::MovePosition,

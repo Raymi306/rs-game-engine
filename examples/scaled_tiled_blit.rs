@@ -6,9 +6,7 @@ use engine::{
     resource::{ImageHandle, ImageResource},
     run,
     types::Vec2,
-    Context,
-    Engine,
-    GameState,
+    Context, Engine, GameState,
 };
 
 const SCREEN_WIDTH: u32 = 1024;

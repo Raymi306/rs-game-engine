@@ -106,19 +106,19 @@ impl Rect {
     pub fn bottom_right(&self) -> Vec2 {
         Vec2 {
             x: self._bottom_left.x + self.width as i32,
-            y: self._bottom_left.y
+            y: self._bottom_left.y,
         }
     }
     pub fn top_left(&self) -> Vec2 {
         Vec2 {
             x: self._bottom_left.x,
-            y: self._bottom_left.y - self.height as i32
+            y: self._bottom_left.y - self.height as i32,
         }
     }
     pub fn top_right(&self) -> Vec2 {
         Vec2 {
             x: self._bottom_left.x + self.width as i32,
-            y: self._bottom_left.y - self.height as i32
+            y: self._bottom_left.y - self.height as i32,
         }
     }
     pub fn area(&self) -> u32 {
@@ -165,6 +165,9 @@ impl From<u32> for Color {
 
 impl From<Color> for u32 {
     fn from(color: Color) -> Self {
-        ((color.a as u32) << 24) | ((color.b as u32) << 16) | ((color.g as u32) << 8) | color.r as u32
+        ((color.a as u32) << 24)
+            | ((color.b as u32) << 16)
+            | ((color.g as u32) << 8)
+            | color.r as u32
     }
 }
