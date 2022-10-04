@@ -200,13 +200,9 @@ pub fn draw_triangle(p1: Vec2, p2: Vec2, p3: Vec2, dst: &mut impl ImageResource,
 }
 
 pub fn draw_vertical_unchecked(p1: Vec2, length: u32, dst: &mut impl ImageResource, color: Color) {
-    let dst_width = dst.width();
-    let dst_buf = dst.get_buf_mut();
+    // TODO rethink casts
     for y in p1.y..length as i32 + p1.y {
-        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32) as usize] = color.r;
-        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 1) as usize] = color.g;
-        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 2) as usize] = color.b;
-        dst_buf[((p1.x + dst_width as i32 * y) * PIXEL_SIZE as i32 + 3) as usize] = color.a;
+        plot_unchecked(p1.x as u32, y as u32, dst, color);
     }
 }
 
@@ -216,15 +212,10 @@ pub fn draw_horizontal_unchecked(
     dst: &mut impl ImageResource,
     color: Color,
 ) {
-    let dst_width = dst.width();
-    let dst_buf = dst.get_buf_mut();
-    for x in (p1.x * PIXEL_SIZE as i32..(length as i32 + p1.x) * PIXEL_SIZE as i32)
-        .step_by(PIXEL_SIZE as usize)
+    // TODO rethink casts
+    for x in p1.x..(length as i32 + p1.x)
     {
-        dst_buf[(x + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.r;
-        dst_buf[(x + 1 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.g;
-        dst_buf[(x + 2 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.b;
-        dst_buf[(x + 3 + (p1.y * dst_width as i32 * PIXEL_SIZE as i32)) as usize] = color.a;
+        plot_unchecked(x as u32, p1.y as u32, dst, color);
     }
 }
 
