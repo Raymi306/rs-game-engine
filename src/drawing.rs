@@ -308,11 +308,17 @@ mod tests {
 
     fn get_images() -> (Image, Image) {
         let screen_buf = unsafe {
-            [0xFF000000 as u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize].align_to::<u8>().1.to_vec()
+            [0xFF000000 as u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize]
+                .align_to::<u8>()
+                .1
+                .to_vec()
         };
         let screen = Image::new(SCREEN_WIDTH, SCREEN_HEIGHT, screen_buf);
         let image_buf = unsafe {
-            [0xFFCCBBAA as u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize].align_to::<u8>().1.to_vec()
+            [0xFFCCBBAA as u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize]
+                .align_to::<u8>()
+                .1
+                .to_vec()
         };
         let image = Image::new(IMAGE_WIDTH, IMAGE_HEIGHT, image_buf);
         (screen, image)
@@ -336,7 +342,7 @@ mod tests {
     }
     #[test]
     fn test_blit_top_right_offset() {
-        test_blit((SCREEN_WIDTH -1) as i32, -1);
+        test_blit((SCREEN_WIDTH - 1) as i32, -1);
     }
     #[test]
     fn test_blit_bottom_left_offset() {
@@ -344,6 +350,6 @@ mod tests {
     }
     #[test]
     fn test_blit_bottom_right_offset() {
-        test_blit((SCREEN_WIDTH -1) as i32, (SCREEN_HEIGHT - 1) as i32);
+        test_blit((SCREEN_WIDTH - 1) as i32, (SCREEN_HEIGHT - 1) as i32);
     }
 }
