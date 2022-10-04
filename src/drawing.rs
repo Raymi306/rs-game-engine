@@ -296,3 +296,54 @@ pub fn draw_text(
 pub fn mask_to_u32(r: u8, g: u8, b: u8, mask: u8) -> u32 {
     ((mask as u32) << 24) | ((r as u32) << 16) | ((g as u32) << 8) | b as u32
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const SCREEN_WIDTH: u32 = 8;
+    const SCREEN_HEIGHT: u32 = 8;
+    const IMAGE_WIDTH: u32 = 4;
+    const IMAGE_HEIGHT: u32 = 4;
+
+    fn get_images() -> (Image, Image) {
+        let screen_buf = unsafe {
+            [0xFF000000 as u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize].align_to::<u8>().1.to_vec()
+        };
+        let screen = Image::new(SCREEN_WIDTH, SCREEN_HEIGHT, screen_buf);
+        let image_buf = unsafe {
+            [0xFFCCBBAA as u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize].align_to::<u8>().1.to_vec()
+        };
+        let image = Image::new(IMAGE_WIDTH, IMAGE_HEIGHT, image_buf);
+        (screen, image)
+    }
+
+    // TODO verify the tests and include byte output for assertions
+    fn test_blit(x: i32, y: i32) {
+        let (mut screen, image) = get_images();
+        let position = Vec2::new(x, y);
+        blit(&image, &mut screen, position);
+        println!("{:?}", screen.buf);
+    }
+
+    #[test]
+    fn test_blit_normal() {
+        test_blit(0, 0);
+    }
+    #[test]
+    fn test_blit_top_left_offset() {
+        test_blit(-1, -1);
+    }
+    #[test]
+    fn test_blit_top_right_offset() {
+        test_blit((SCREEN_WIDTH -1) as i32, -1);
+    }
+    #[test]
+    fn test_blit_bottom_left_offset() {
+        test_blit(-1, (SCREEN_HEIGHT - 1) as i32);
+    }
+    #[test]
+    fn test_blit_bottom_right_offset() {
+        test_blit((SCREEN_WIDTH -1) as i32, (SCREEN_HEIGHT - 1) as i32);
+    }
+}

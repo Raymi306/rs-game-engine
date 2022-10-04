@@ -45,6 +45,12 @@ impl From<Vec2F> for Vec2 {
     }
 }
 
+impl Vec2 {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self {x, y}
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec2F {
     pub x: f32,
@@ -78,6 +84,12 @@ impl Mul<f32> for Vec2F {
             x: self.x * other,
             y: self.y * other,
         }
+    }
+}
+
+impl Vec2F {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self {x, y}
     }
 }
 
@@ -152,22 +164,45 @@ impl Color {
     }
 }
 
+/// This is intended to parse RGBA and not necessarily reflect what the format is
 impl From<u32> for Color {
-    // TODO TEST ME
     fn from(num: u32) -> Self {
-        let a = (num & 0x00ff0000) >> 24;
-        let b = (num & 0x0000ff00) >> 16;
-        let g = (num & 0x000000ff) >> 8;
-        let r = num & 0xff000000;
+        let r = (num & 0xff000000) >> 24;
+        let g = (num & 0x00ff0000) >> 16;
+        let b = (num & 0x0000ff00) >> 8;
+        let a = num & 0x000000ff;
         Color::new(r as u8, g as u8, b as u8, a as u8)
     }
 }
 
+/// This is intended to represent the underlying format
 impl From<Color> for u32 {
     fn from(color: Color) -> Self {
         ((color.a as u32) << 24)
             | ((color.b as u32) << 16)
             | ((color.g as u32) << 8)
             | color.r as u32
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_color_from_u32() {
+        let color_u32: u32 = 0x775533FF;
+        let color = Color::from(color_u32);
+        assert_eq!(color.r, 0x77, "Red channel incorrect");
+        assert_eq!(color.g, 0x55, "Green channel incorrect");
+        assert_eq!(color.b, 0x33, "Blue channel incorrect");
+        assert_eq!(color.a, 0xFF, "Alpha channel incorrect");
+    }
+
+    #[test]
+    fn test_u32_from_color() {
+        let color = Color::new(0x77, 0x55, 0x33, 0xFF);
+        let color_u32 = u32::from(color);
+        assert_eq!(color_u32, 0xFF335577);
     }
 }
