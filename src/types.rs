@@ -101,9 +101,9 @@ pub struct Rect {
 }
 
 impl Rect {
-    pub fn new(p1: Vec2, width: u32, height: u32) -> Self {
+    pub fn new(top_left: Vec2, width: u32, height: u32) -> Self {
         Self {
-            _top_left: p1,
+            _top_left: top_left,
             width,
             height,
         }
