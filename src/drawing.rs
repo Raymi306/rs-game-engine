@@ -224,39 +224,18 @@ pub fn draw_horizontal_unchecked(
     }
 }
 
-pub fn draw_rectangle_unchecked(
-    bottom_left: Vec2,
-    top_right: Vec2,
-    dst: &mut impl ImageResource,
-    color: Color,
-) {
-    let height = (top_right.y - bottom_left.y).abs() as u32;
-    let width = (top_right.x - bottom_left.x) as u32;
+pub fn draw_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color: Color) {
+    let height = rect.height;
+    let width = rect.width;
+    draw_vertical_unchecked(rect.top_left(), height, dst, color);
+    draw_horizontal_unchecked(rect.bottom_left(), width, dst, color);
     draw_vertical_unchecked(
-        Vec2 {
-            x: bottom_left.x,
-            y: top_right.y,
-        },
-        height,
-        dst,
-        color,
-    );
-    draw_horizontal_unchecked(bottom_left, width, dst, color);
-    draw_vertical_unchecked(
-        top_right,
+        rect.top_right(),
         height + 1, // Why + 1??
         dst,
         color,
     );
-    draw_horizontal_unchecked(
-        Vec2 {
-            x: bottom_left.x,
-            y: top_right.y,
-        },
-        width,
-        dst,
-        color,
-    );
+    draw_horizontal_unchecked(rect.top_left(), width, dst, color);
 }
 
 pub fn draw_text(

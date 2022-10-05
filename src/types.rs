@@ -95,7 +95,7 @@ impl Vec2F {
 
 #[derive(Debug, Copy, Clone)]
 pub struct Rect {
-    _bottom_left: Vec2,
+    _top_left: Vec2,
     pub width: u32,
     pub height: u32,
 }
@@ -103,50 +103,50 @@ pub struct Rect {
 impl Rect {
     pub fn new(p1: Vec2, width: u32, height: u32) -> Self {
         Self {
-            _bottom_left: p1,
+            _top_left: p1,
             width,
             height,
         }
     }
     pub fn offset(&mut self, vector: Vec2) {
-        self._bottom_left.x += vector.x;
-        self._bottom_left.y += vector.y;
+        self._top_left.x += vector.x;
+        self._top_left.y += vector.y;
     }
     pub fn bottom_left(&self) -> Vec2 {
-        self._bottom_left
+        Vec2 {
+            x: self._top_left.x,
+            y: self._top_left.y + self.height as i32,
+        }
     }
     pub fn bottom_right(&self) -> Vec2 {
         Vec2 {
-            x: self._bottom_left.x + self.width as i32,
-            y: self._bottom_left.y,
+            x: self._top_left.x + self.width as i32,
+            y: self._top_left.y + self.height as i32,
         }
     }
     pub fn top_left(&self) -> Vec2 {
-        Vec2 {
-            x: self._bottom_left.x,
-            y: self._bottom_left.y - self.height as i32,
-        }
+        self._top_left
     }
     pub fn top_right(&self) -> Vec2 {
         Vec2 {
-            x: self._bottom_left.x + self.width as i32,
-            y: self._bottom_left.y - self.height as i32,
+            x: self._top_left.x + self.width as i32,
+            y: self._top_left.y,
         }
     }
     pub fn area(&self) -> u32 {
         self.width * self.height
     }
     pub fn left(&self) -> i32 {
-        self._bottom_left.x
+        self._top_left.x
     }
     pub fn right(&self) -> i32 {
-        self._bottom_left.x + self.width as i32
+        self._top_left.x + self.width as i32
     }
     pub fn top(&self) -> i32 {
-        self._bottom_left.y - self.height as i32
+        self._top_left.y
     }
     pub fn bottom(&self) -> i32 {
-        self._bottom_left.y
+        self._top_left.y + self.height as i32
     }
 }
 

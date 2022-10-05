@@ -3,7 +3,7 @@ use std::time::Duration;
 use engine::{
     drawing::{draw_line, draw_rectangle_unchecked, draw_triangle},
     run,
-    types::{Color, Vec2},
+    types::{Color, Rect, Vec2},
     Context, Engine, GameState,
 };
 
@@ -31,15 +31,15 @@ impl GameState for Demo {
             .window
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
         let screen = &mut engine.screen;
-        let r1 = (Vec2 { x: 100, y: 500 }, Vec2 { x: 300, y: 100 });
-        let r2 = (Vec2 { x: 150, y: 250 }, Vec2 { x: 450, y: 150 });
+        let r1 = Rect::new(Vec2 { x: 100, y: 100 }, 200, 400);
+        let r2 = Rect::new(Vec2 { x: 150, y: 150 }, 300, 100);
         let t1 = (
             Vec2 { x: 200, y: 200 },
             Vec2 { x: 300, y: 300 },
             Vec2 { x: 1000, y: 700 },
         );
-        draw_rectangle_unchecked(r1.0, r1.1, screen, Color::new(0, 255, 0, 255));
-        draw_rectangle_unchecked(r2.0, r2.1, screen, Color::new(0, 0, 255, 255));
+        draw_rectangle_unchecked(r1, screen, Color::new(0, 255, 0, 255));
+        draw_rectangle_unchecked(r2, screen, Color::new(0, 0, 255, 255));
         draw_triangle(t1.0, t1.1, t1.2, screen, Color::new(255, 0, 0, 255));
         draw_line(
             t1.0,

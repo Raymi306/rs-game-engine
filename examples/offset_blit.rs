@@ -42,7 +42,7 @@ impl Demo {
         let rect = Rect::new(
             Vec2 {
                 x: sprite_width as i32,
-                y: (sprite_height * 2) as i32,
+                y: sprite_height as i32,
             },
             sprite_width,
             sprite_height,
@@ -88,12 +88,7 @@ impl GameState for Demo {
             .get_image(self.image_handle_1.unwrap())
             .unwrap();
         blit(image_1, screen, Vec2 { x: 0, y: 0 });
-        draw_rectangle_unchecked(
-            self.rect.bottom_left(),
-            self.rect.top_right(),
-            screen,
-            Color::new(255, 255, 0, 255),
-        );
+        draw_rectangle_unchecked(self.rect, screen, Color::new(255, 255, 0, 255));
         blit_rect(image_1, self.rect, screen, self.position);
         if engine.input.key_released(VirtualKeyCode::M) {
             self.mode = match self.mode {
