@@ -205,4 +205,23 @@ mod tests {
         let color_u32 = u32::from(color);
         assert_eq!(color_u32, 0xFF335577);
     }
+
+    #[test]
+    fn test_rect_simple() {
+        let rect = Rect::new(Vec2::new(0, 0), 10, 10);
+        let top_left = rect.top_left();
+        let top_right = rect.top_right();
+        let bottom_left = rect.bottom_left();
+        let bottom_right = rect.bottom_right();
+        let area = rect.area();
+        let width = rect.width;
+        let height = rect.height;
+        assert_eq!(top_left, Vec2::new(0, 0));
+        assert_eq!(top_right, Vec2::new(10, 0));
+        assert_eq!(bottom_left, Vec2::new(0, 10));
+        assert_eq!(bottom_right, Vec2::new(10, 10));
+        assert_eq!(area, 100);
+        assert_eq!(width, 10);
+        assert_eq!(height, 10);
+    }
 }
