@@ -1,3 +1,4 @@
+pub use winit::event::VirtualKeyCode;
 use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
