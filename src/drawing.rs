@@ -224,6 +224,25 @@ pub fn draw_horizontal_unchecked(
     }
 }
 
+pub fn draw_vertical(p1: Vec2, length: u32, dst: &mut impl ImageResource, color: Color) {
+    // TODO rethink casts
+    for y in p1.y..length as i32 + p1.y {
+        plot(p1.x, y, dst, color);
+    }
+}
+
+pub fn draw_horizontal(
+    p1: Vec2,
+    length: u32,
+    dst: &mut impl ImageResource,
+    color: Color,
+) {
+    // TODO rethink casts
+    for x in p1.x..(length as i32 + p1.x) {
+        plot(x, p1.y, dst, color);
+    }
+}
+
 pub fn draw_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color: Color) {
     let height = rect.height;
     let width = rect.width;
@@ -236,6 +255,20 @@ pub fn draw_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color:
         color,
     );
     draw_horizontal_unchecked(rect.top_left(), width, dst, color);
+}
+
+pub fn draw_rectangle(rect: Rect, dst: &mut impl ImageResource, color: Color) {
+    let height = rect.height;
+    let width = rect.width;
+    draw_vertical(rect.top_left(), height, dst, color);
+    draw_horizontal(rect.bottom_left(), width, dst, color);
+    draw_vertical(
+        rect.top_right(),
+        height + 1, // Why + 1??
+        dst,
+        color,
+    );
+    draw_horizontal(rect.top_left(), width, dst, color);
 }
 
 pub fn draw_text(
