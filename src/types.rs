@@ -1,5 +1,5 @@
 pub use winit::event::VirtualKeyCode;
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Mul, Sub, Div};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Vec2 {
@@ -37,6 +37,16 @@ impl Mul<i32> for Vec2 {
     }
 }
 
+impl Div<i32> for Vec2 {
+    type Output = Self;
+    fn div(self, other: i32) -> Self {
+        Self {
+            x: self.x / other,
+            y: self.y / other,
+        }
+    }
+}
+
 impl From<Vec2F> for Vec2 {
     fn from(item: Vec2F) -> Self {
         Self {
@@ -49,6 +59,17 @@ impl From<Vec2F> for Vec2 {
 impl Vec2 {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
+    }
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt((self.x * self.x + self.y * self.y) as f32)
+    }
+    pub fn normalize(&self) -> Vec2F {
+        let magnitude = self.magnitude();
+        if magnitude > 0.0 {
+            Vec2F::from(*self) / magnitude
+        } else {
+            Vec2F::from(*self)
+        }
     }
 }
 
@@ -88,9 +109,39 @@ impl Mul<f32> for Vec2F {
     }
 }
 
+impl Div<f32> for Vec2F {
+    type Output = Self;
+    fn div(self, other: f32) -> Self {
+        Self {
+            x: self.x / other,
+            y: self.y / other,
+        }
+    }
+}
+
+impl From<Vec2> for Vec2F {
+    fn from(item: Vec2) -> Self {
+        Self {
+            x: item.x as f32,
+            y: item.y as f32,
+        }
+    }
+}
+
 impl Vec2F {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
+    }
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt(self.x * self.x + self.y * self.y)
+    }
+    pub fn normalize(&self) -> Self {
+        let magnitude = self.magnitude();
+        if magnitude > 0.0 {
+            *self / magnitude
+        } else {
+            Self { x: 0.0, y: 0.0 }
+        }
     }
 }
 
