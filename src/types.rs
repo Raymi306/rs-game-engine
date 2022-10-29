@@ -1,4 +1,5 @@
 pub use winit::event::VirtualKeyCode;
+pub use winit_input_helper::WinitInputHelper;
 use std::ops::{Add, Mul, Sub, Div};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
