@@ -1,8 +1,8 @@
+use std::ops::{Add, Div, Mul, Sub};
 pub use winit::event::VirtualKeyCode;
 pub use winit_input_helper::WinitInputHelper;
-use std::ops::{Add, Mul, Sub, Div};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Vec2 {
     pub x: i32,
     pub y: i32,
@@ -58,7 +58,7 @@ impl From<Vec2F> for Vec2 {
 }
 
 impl Vec2 {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub const fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
     pub fn magnitude(&self) -> f32 {
@@ -130,7 +130,7 @@ impl From<Vec2> for Vec2F {
 }
 
 impl Vec2F {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
     pub fn magnitude(&self) -> f32 {
@@ -146,7 +146,7 @@ impl Vec2F {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Rect {
     _top_left: Vec2,
     pub width: u32,
@@ -154,7 +154,7 @@ pub struct Rect {
 }
 
 impl Rect {
-    pub fn new(top_left: Vec2, width: u32, height: u32) -> Self {
+    pub const fn new(top_left: Vec2, width: u32, height: u32) -> Self {
         Self {
             _top_left: top_left,
             width,
@@ -165,45 +165,45 @@ impl Rect {
         self._top_left.x += vector.x;
         self._top_left.y += vector.y;
     }
-    pub fn bottom_left(&self) -> Vec2 {
+    pub const fn bottom_left(&self) -> Vec2 {
         Vec2 {
             x: self._top_left.x,
             y: self._top_left.y + self.height as i32,
         }
     }
-    pub fn bottom_right(&self) -> Vec2 {
+    pub const fn bottom_right(&self) -> Vec2 {
         Vec2 {
             x: self._top_left.x + self.width as i32,
             y: self._top_left.y + self.height as i32,
         }
     }
-    pub fn top_left(&self) -> Vec2 {
+    pub const fn top_left(&self) -> Vec2 {
         self._top_left
     }
-    pub fn top_right(&self) -> Vec2 {
+    pub const fn top_right(&self) -> Vec2 {
         Vec2 {
             x: self._top_left.x + self.width as i32,
             y: self._top_left.y,
         }
     }
-    pub fn area(&self) -> u32 {
+    pub const fn area(&self) -> u32 {
         self.width * self.height
     }
-    pub fn left(&self) -> i32 {
+    pub const fn left(&self) -> i32 {
         self._top_left.x
     }
-    pub fn right(&self) -> i32 {
+    pub const fn right(&self) -> i32 {
         self._top_left.x + self.width as i32
     }
-    pub fn top(&self) -> i32 {
+    pub const fn top(&self) -> i32 {
         self._top_left.y
     }
-    pub fn bottom(&self) -> i32 {
+    pub const fn bottom(&self) -> i32 {
         self._top_left.y + self.height as i32
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -212,7 +212,7 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 }

@@ -231,12 +231,7 @@ pub fn draw_vertical(p1: Vec2, length: u32, dst: &mut impl ImageResource, color:
     }
 }
 
-pub fn draw_horizontal(
-    p1: Vec2,
-    length: u32,
-    dst: &mut impl ImageResource,
-    color: Color,
-) {
+pub fn draw_horizontal(p1: Vec2, length: u32, dst: &mut impl ImageResource, color: Color) {
     // TODO rethink casts
     for x in p1.x..(length as i32 + p1.x) {
         plot(x, p1.y, dst, color);
