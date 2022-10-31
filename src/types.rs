@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Sub};
 pub use winit::event::VirtualKeyCode;
 pub use winit_input_helper::WinitInputHelper;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Vec2 {
     pub x: i32,
     pub y: i32,
@@ -74,7 +74,7 @@ impl Vec2 {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Vec2F {
     pub x: f32,
     pub y: f32,
