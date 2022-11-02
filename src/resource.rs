@@ -7,16 +7,13 @@ use fontdue::{Font, FontSettings};
 use image::io::Reader as ImageReader;
 
 #[derive(Copy, Clone, Debug)]
-pub struct ImageHandle {
+pub struct Handle {
     pub id: usize,
     _index: usize,
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct FontHandle {
-    pub id: usize,
-    _index: usize,
-}
+pub type ImageHandle = Handle;
+pub type FontHandle = Handle;
 
 pub trait ImageResource {
     fn width(&self) -> u32;
