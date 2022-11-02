@@ -73,6 +73,55 @@ pub fn blit_rect(
     }
 }
 
+pub fn blit_rect_with_alpha(
+    src: &impl ImageResource,
+    src_rect: Rect,
+    dst: &mut impl ImageResource,
+    position: Vec2,
+) {
+    // stolen shamelessly from OneLoneCoder's PixelGameEngine with bounds checking that ended up
+    // looking like blit crate's
+    let src_width = src.width() as i32;
+    let src_height = src.height() as i32;
+    let dst_width = dst.width() as i32;
+    let dst_height = dst.height() as i32;
+    let min_x = cmp::max(-position.x, 0);
+    let min_y = cmp::max(-position.y, 0);
+    let max_x = cmp::min(dst_width - position.x, src_rect.width as i32);
+    let max_y = cmp::min(dst_height - position.y, src_rect.height as i32);
+    if src_rect.right() > src_width || src_rect.bottom() > src_height {
+        return;
+    }
+    let src_buf = src.get_buf_u32();
+    let dst_buf = dst.get_buf_u32_mut();
+
+    for y in min_y..max_y as i32 {
+        for x in min_x..max_x as i32 {
+            let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
+            let src_index =
+                (x + src_rect.top_left().x + (y + src_rect.top_left().y) * src_width) as usize;
+            let src_r = src_buf[src_index] & 0xFF;
+            let src_g = (src_buf[src_index] & 0xFF00) >> 8;
+            let src_b = (src_buf[src_index] & 0xFF0000) >> 16;
+            let src_a = (src_buf[src_index] & 0xFF000000) >> 24;
+
+            let dst_r = dst_buf[dst_index] & 0xFF;
+            let dst_g = (dst_buf[dst_index] & 0xFF00) >> 8;
+            let dst_b = (dst_buf[dst_index] & 0xFF0000) >> 16;
+            let dst_a = (dst_buf[dst_index] & 0xFF000000) >> 24;
+
+            let r_out = (src_r * src_a / 255) + (dst_r * dst_a * (255 - src_a) / (255 * 255));
+            let g_out = (src_g * src_a / 255) + (dst_g * dst_a * (255 - src_a) / (255 * 255));
+            let b_out = (src_b * src_a / 255) + (dst_b * dst_a * (255 - src_a) / (255 * 255));
+            let a_out = src_a + (dst_a * (255 - src_a) / 255);
+
+            let out = r_out | (g_out << 8) | (b_out << 16) | (a_out << 24);
+
+            dst_buf[dst_index] = out;
+        }
+    }
+}
+
 pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
     // how to blend with alpha https://stackoverflow.com/a/64655571/9057528
     let src_width = src.width();
@@ -128,8 +177,6 @@ pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, p
         }
     }
 }
-
-// TODO how to blit with a source rect, so we can use spritemaps?
 
 #[inline]
 fn plot_unchecked(x: u32, y: u32, dst: &mut impl ImageResource, color: Color) {
