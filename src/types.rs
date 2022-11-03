@@ -177,6 +177,7 @@ impl Rect {
             y: self._top_left.y + self.height as i32,
         }
     }
+    #[inline(always)]
     pub const fn top_left(&self) -> Vec2 {
         self._top_left
     }
