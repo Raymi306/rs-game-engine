@@ -122,7 +122,8 @@ pub fn blit_rect_with_alpha(
     for y in min_y..max_y as i32 {
         for x in min_x..max_x as i32 {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
-            let src_index = (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
+            let src_index =
+                (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
             let out = blend_alpha(src_buf[src_index], dst_buf[dst_index]);
             dst_buf[dst_index] = out;
         }
