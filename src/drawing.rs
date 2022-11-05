@@ -13,30 +13,54 @@ pub fn blit(src: &impl ImageResource, dst: &mut impl ImageResource, position: Ve
     let src_height = src.height();
     let dst_width = dst.width();
 
-    let src_buf = src.get_buf();
-    let dst_buf = dst.get_buf_mut();
+    let src_buf = src.get_buf_u32();
+    let dst_buf = dst.get_buf_u32_mut();
 
     let dst_size = (
         dst_width as i32,
-        (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32,
+        (dst_buf.len() / dst_width as usize) as i32,
     );
 
-    let min_x = cmp::max(-position.x * PIXEL_SIZE as i32, 0);
-    let min_y = cmp::max(-position.y as i32, 0);
+    let min_x = cmp::max(-position.x, 0);
+    let min_y = cmp::max(-position.y, 0);
     let max_x = cmp::min(dst_size.0 - position.x, src_width as i32);
     let max_y = cmp::min(dst_size.1 - position.y, src_height as i32);
 
     for y in min_y..max_y {
-        for x in (min_x..max_x * PIXEL_SIZE as i32).step_by(PIXEL_SIZE as usize) {
+        for x in min_x..max_x {
             let index = // TODO rethink these casts?
-                ((x + (position.x * PIXEL_SIZE as i32))
-                + ((y + position.y) * dst_width as i32)
-                * PIXEL_SIZE as i32) as usize;
-            let src_index = (x + y * (src_width * PIXEL_SIZE) as i32) as usize;
+                ((x + position.x) + ((y + position.y) * dst_width as i32)) as usize;
+            let src_index = (x + y * src_width as i32) as usize;
             dst_buf[index] = src_buf[src_index];
-            dst_buf[index + 1] = src_buf[src_index + 1];
-            dst_buf[index + 2] = src_buf[src_index + 2];
-            dst_buf[index + 3] = src_buf[src_index + 3];
+        }
+    }
+}
+
+pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
+    // how to blend with alpha https://stackoverflow.com/a/64655571/9057528
+    let src_width = src.width();
+    let src_height = src.height();
+    let dst_width = dst.width();
+
+    let src_buf = src.get_buf_u32();
+    let dst_buf = dst.get_buf_u32_mut();
+
+    let dst_size = (
+        dst_width as i32,
+        (dst_buf.len() / dst_width as usize) as i32,
+    );
+
+    let min_x = cmp::max(-position.x, 0);
+    let min_y = cmp::max(-position.y, 0);
+    let max_x = cmp::min(dst_size.0 - position.x, src_width as i32);
+    let max_y = cmp::min(dst_size.1 - position.y, src_height as i32);
+
+    for y in min_y..max_y {
+        for x in min_x..max_x {
+            let dst_index = (x + position.x + ((y + position.y) * dst_width as i32)) as usize;
+            let src_index = (x + y * src_width as i32) as usize;
+            let out = blend_alpha(src_buf[src_index], dst_buf[dst_index]);
+            dst_buf[dst_index] = out;
         }
     }
 }
@@ -98,82 +122,9 @@ pub fn blit_rect_with_alpha(
     for y in min_y..max_y as i32 {
         for x in min_x..max_x as i32 {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
-            let src_index =
-                (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
-            let src_r = src_buf[src_index] & 0xFF;
-            let src_g = (src_buf[src_index] & 0xFF00) >> 8;
-            let src_b = (src_buf[src_index] & 0xFF0000) >> 16;
-            let src_a = (src_buf[src_index] & 0xFF000000) >> 24;
-
-            let dst_r = dst_buf[dst_index] & 0xFF;
-            let dst_g = (dst_buf[dst_index] & 0xFF00) >> 8;
-            let dst_b = (dst_buf[dst_index] & 0xFF0000) >> 16;
-            let dst_a = (dst_buf[dst_index] & 0xFF000000) >> 24;
-
-            let r_out = (src_r * src_a / 255) + (dst_r * dst_a * (255 - src_a) / (255 * 255));
-            let g_out = (src_g * src_a / 255) + (dst_g * dst_a * (255 - src_a) / (255 * 255));
-            let b_out = (src_b * src_a / 255) + (dst_b * dst_a * (255 - src_a) / (255 * 255));
-            let a_out = src_a + (dst_a * (255 - src_a) / 255);
-
-            let out = r_out | (g_out << 8) | (b_out << 16) | (a_out << 24);
-
+            let src_index = (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
+            let out = blend_alpha(src_buf[src_index], dst_buf[dst_index]);
             dst_buf[dst_index] = out;
-        }
-    }
-}
-
-pub fn blit_with_alpha(src: &impl ImageResource, dst: &mut impl ImageResource, position: Vec2) {
-    // how to blend with alpha https://stackoverflow.com/a/64655571/9057528
-    let src_width = src.width();
-    let src_height = src.height();
-    let dst_width = dst.width();
-
-    let src_buf = src.get_buf();
-    let dst_buf = dst.get_buf_mut();
-
-    let dst_size = (
-        dst_width as i32,
-        (dst_buf.len() as usize / PIXEL_SIZE as usize / dst_width as usize) as i32,
-    );
-
-    let min_x = cmp::max(-position.x * PIXEL_SIZE as i32, 0);
-    let min_y = cmp::max(-position.y as i32, 0);
-    let max_x = cmp::min(dst_size.0 - position.x, src_width as i32);
-    let max_y = cmp::min(dst_size.1 - position.y, src_height as i32);
-
-    for y in min_y..max_y {
-        for x in (min_x..max_x * PIXEL_SIZE as i32).step_by(PIXEL_SIZE as usize) {
-            let index = // TODO rethink these casts?
-                ((x as i32 + (position.x * PIXEL_SIZE as i32))
-                + ((y as i32 + position.y) * dst_width as i32)
-                * PIXEL_SIZE as i32) as usize;
-            let src_index = (x + y * (src_width * PIXEL_SIZE) as i32) as usize;
-
-            let src_r = src_buf[src_index] as u32;
-            let src_g = src_buf[src_index + 1] as u32;
-            let src_b = src_buf[src_index + 2] as u32;
-            let src_a = src_buf[src_index + 3] as u32;
-
-            let dst_r = dst_buf[index] as u32;
-            let dst_g = dst_buf[index + 1] as u32;
-            let dst_b = dst_buf[index + 2] as u32;
-            let dst_a = dst_buf[index + 3] as u32;
-
-            /* divide by zero
-            let r_out = (src_r * src_a + dst_r * dst_a * (255 - src_a) / 255) / a_out;
-            let g_out = (src_g * src_a + dst_g * dst_a * (255 - src_a) / 255) / a_out;
-            let b_out = (src_b * src_a + dst_b * dst_a * (255 - src_a) / 255) / a_out;
-            let a_out = src_a + (dst_a * (255 - src_a));
-            */
-            let r_out = (src_r * src_a / 255) + (dst_r * dst_a * (255 - src_a) / (255 * 255));
-            let g_out = (src_g * src_a / 255) + (dst_g * dst_a * (255 - src_a) / (255 * 255));
-            let b_out = (src_b * src_a / 255) + (dst_b * dst_a * (255 - src_a) / (255 * 255));
-            let a_out = src_a + (dst_a * (255 - src_a) / 255);
-
-            dst_buf[index] = r_out as u8;
-            dst_buf[index + 1] = g_out as u8;
-            dst_buf[index + 2] = b_out as u8;
-            dst_buf[index + 3] = a_out as u8;
         }
     }
 }
@@ -344,6 +295,26 @@ pub fn draw_text(
             },
         );
     }
+}
+
+#[inline]
+fn blend_alpha(src: u32, dst: u32) -> u32 {
+    let src_r = src & 0xFF;
+    let src_g = (src & 0xFF00) >> 8;
+    let src_b = (src & 0xFF0000) >> 16;
+    let src_a = (src & 0xFF000000) >> 24;
+
+    let dst_r = dst & 0xFF;
+    let dst_g = (dst & 0xFF00) >> 8;
+    let dst_b = (dst & 0xFF0000) >> 16;
+    let dst_a = (dst & 0xFF000000) >> 24;
+
+    let r_out = (src_r * src_a / 255) + (dst_r * dst_a * (255 - src_a) / (255 * 255));
+    let g_out = (src_g * src_a / 255) + (dst_g * dst_a * (255 - src_a) / (255 * 255));
+    let b_out = (src_b * src_a / 255) + (dst_b * dst_a * (255 - src_a) / (255 * 255));
+    let a_out = src_a + (dst_a * (255 - src_a) / 255);
+
+    r_out | (g_out << 8) | (b_out << 16) | (a_out << 24)
 }
 
 #[inline]
