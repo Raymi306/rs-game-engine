@@ -1,6 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 pub use winit::event::VirtualKeyCode;
 pub use winit_input_helper::WinitInputHelper;
+pub use fontdue::FontSettings;
 
 macro_rules! impl_common_vec_traits {
     ($name : ident, $type : ident) => {
