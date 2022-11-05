@@ -148,7 +148,7 @@ impl Vec2F {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Rect {
-    _top_left: Vec2,
+    pub top_left: Vec2,
     pub width: u32,
     pub height: u32,
 }
@@ -156,51 +156,47 @@ pub struct Rect {
 impl Rect {
     pub const fn new(top_left: Vec2, width: u32, height: u32) -> Self {
         Self {
-            _top_left: top_left,
+            top_left,
             width,
             height,
         }
     }
     pub fn offset(&mut self, vector: Vec2) {
-        self._top_left.x += vector.x;
-        self._top_left.y += vector.y;
+        self.top_left.x += vector.x;
+        self.top_left.y += vector.y;
     }
     pub const fn bottom_left(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x,
-            y: self._top_left.y + self.height as i32,
+            x: self.top_left.x,
+            y: self.top_left.y + self.height as i32,
         }
     }
     pub const fn bottom_right(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x + self.width as i32,
-            y: self._top_left.y + self.height as i32,
+            x: self.top_left.x + self.width as i32,
+            y: self.top_left.y + self.height as i32,
         }
-    }
-    #[inline(always)]
-    pub const fn top_left(&self) -> Vec2 {
-        self._top_left
     }
     pub const fn top_right(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x + self.width as i32,
-            y: self._top_left.y,
+            x: self.top_left.x + self.width as i32,
+            y: self.top_left.y,
         }
     }
     pub const fn area(&self) -> u32 {
         self.width * self.height
     }
     pub const fn left(&self) -> i32 {
-        self._top_left.x
+        self.top_left.x
     }
     pub const fn right(&self) -> i32 {
-        self._top_left.x + self.width as i32
+        self.top_left.x + self.width as i32
     }
     pub const fn top(&self) -> i32 {
-        self._top_left.y
+        self.top_left.y
     }
     pub const fn bottom(&self) -> i32 {
-        self._top_left.y + self.height as i32
+        self.top_left.y + self.height as i32
     }
 }
 
@@ -263,7 +259,7 @@ mod tests {
     #[test]
     fn test_rect_simple() {
         let rect = Rect::new(Vec2::new(0, 0), 10, 10);
-        let top_left = rect.top_left();
+        let top_left = rect.top_left;
         let top_right = rect.top_right();
         let bottom_left = rect.bottom_left();
         let bottom_right = rect.bottom_right();

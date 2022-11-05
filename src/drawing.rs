@@ -67,7 +67,7 @@ pub fn blit_rect(
         for x in min_x..max_x as i32 {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
             let src_index =
-                (x + src_rect.top_left().x + (y + src_rect.top_left().y) * src_width) as usize;
+                (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
             dst_buf[dst_index] = src_buf[src_index];
         }
     }
@@ -99,7 +99,7 @@ pub fn blit_rect_with_alpha(
         for x in min_x..max_x as i32 {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
             let src_index =
-                (x + src_rect.top_left().x + (y + src_rect.top_left().y) * src_width) as usize;
+                (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
             let src_r = src_buf[src_index] & 0xFF;
             let src_g = (src_buf[src_index] & 0xFF00) >> 8;
             let src_b = (src_buf[src_index] & 0xFF0000) >> 16;
@@ -288,7 +288,7 @@ pub fn draw_horizontal(p1: Vec2, length: u32, dst: &mut impl ImageResource, colo
 pub fn draw_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color: Color) {
     let height = rect.height;
     let width = rect.width;
-    draw_vertical_unchecked(rect.top_left(), height, dst, color);
+    draw_vertical_unchecked(rect.top_left, height, dst, color);
     draw_horizontal_unchecked(rect.bottom_left(), width, dst, color);
     draw_vertical_unchecked(
         rect.top_right(),
@@ -296,13 +296,13 @@ pub fn draw_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color:
         dst,
         color,
     );
-    draw_horizontal_unchecked(rect.top_left(), width, dst, color);
+    draw_horizontal_unchecked(rect.top_left, width, dst, color);
 }
 
 pub fn draw_rectangle(rect: Rect, dst: &mut impl ImageResource, color: Color) {
     let height = rect.height;
     let width = rect.width;
-    draw_vertical(rect.top_left(), height, dst, color);
+    draw_vertical(rect.top_left, height, dst, color);
     draw_horizontal(rect.bottom_left(), width, dst, color);
     draw_vertical(
         rect.top_right(),
@@ -310,7 +310,7 @@ pub fn draw_rectangle(rect: Rect, dst: &mut impl ImageResource, color: Color) {
         dst,
         color,
     );
-    draw_horizontal(rect.top_left(), width, dst, color);
+    draw_horizontal(rect.top_left, width, dst, color);
 }
 
 pub fn draw_text(
