@@ -1,6 +1,86 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 pub use winit::event::VirtualKeyCode;
 pub use winit_input_helper::WinitInputHelper;
+
+macro_rules! impl_common_vec_traits {
+    ($name : ident, $type : ident) => {
+        impl Add for $name {
+            type Output = Self;
+            fn add(self, other: Self) -> Self {
+                Self {
+                    x: self.x + other.x,
+                    y: self.y + other.y,
+                }
+            }
+        }
+
+        impl AddAssign for $name {
+            fn add_assign(&mut self, other: Self) {
+                *self = Self {
+                    x: self.x + other.x,
+                    y: self.y + other.y,
+                }
+            }
+        }
+
+        impl Sub for $name {
+            type Output = Self;
+            fn sub(self, other: Self) -> Self {
+                Self {
+                    x: self.x - other.x,
+                    y: self.y - other.y,
+                }
+            }
+        }
+
+        impl SubAssign for $name {
+            fn sub_assign(&mut self, other: Self) {
+                *self = Self {
+                    x: self.x - other.x,
+                    y: self.y - other.y,
+                }
+            }
+        }
+
+        impl Mul<$type> for $name {
+            type Output = Self;
+            fn mul(self, other: $type) -> Self {
+                Self {
+                    x: self.x * other,
+                    y: self.y * other,
+                }
+            }
+        }
+
+        impl MulAssign<$type> for $name {
+            fn mul_assign(&mut self, other: $type) {
+                *self = Self {
+                    x: self.x * other,
+                    y: self.y * other,
+                }
+            }
+        }
+
+        impl Div<$type> for $name {
+            type Output = Self;
+            fn div(self, other: $type) -> Self {
+                Self {
+                    x: self.x / other,
+                    y: self.y / other,
+                }
+            }
+        }
+
+        impl DivAssign<$type> for $name {
+            fn div_assign(&mut self, other: $type) {
+                *self = Self {
+                    x: self.x / other,
+                    y: self.y / other,
+                }
+            }
+        }
+    };
+}
 
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Vec2 {
@@ -8,45 +88,7 @@ pub struct Vec2 {
     pub y: i32,
 }
 
-impl Add for Vec2 {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Sub for Vec2 {
-    type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl Mul<i32> for Vec2 {
-    type Output = Self;
-    fn mul(self, other: i32) -> Self {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
-        }
-    }
-}
-
-impl Div<i32> for Vec2 {
-    type Output = Self;
-    fn div(self, other: i32) -> Self {
-        Self {
-            x: self.x / other,
-            y: self.y / other,
-        }
-    }
-}
+impl_common_vec_traits!(Vec2, i32);
 
 impl From<Vec2F> for Vec2 {
     fn from(item: Vec2F) -> Self {
@@ -80,45 +122,7 @@ pub struct Vec2F {
     pub y: f32,
 }
 
-impl Add for Vec2F {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Sub for Vec2F {
-    type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl Mul<f32> for Vec2F {
-    type Output = Self;
-    fn mul(self, other: f32) -> Self {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
-        }
-    }
-}
-
-impl Div<f32> for Vec2F {
-    type Output = Self;
-    fn div(self, other: f32) -> Self {
-        Self {
-            x: self.x / other,
-            y: self.y / other,
-        }
-    }
-}
+impl_common_vec_traits!(Vec2F, f32);
 
 impl From<Vec2> for Vec2F {
     fn from(item: Vec2) -> Self {
@@ -160,6 +164,18 @@ impl Rect {
             width,
             height,
         }
+    }
+    pub const fn point_intersects(&self, point: Vec2) -> bool {
+        point.x >= self.left()
+            && point.x <= self.right()
+            && point.y >= self.top()
+            && point.y <= self.bottom()
+    }
+    pub const fn intersects(&self, other: &Self) -> bool {
+        self.top_left.x < other.top_left.x + other.width as i32
+            && self.top_left.x + self.width as i32 > other.top_left.x
+            && self.top_left.y < other.top_left.y + other.height as i32
+            && self.height as i32 + self.top_left.y > other.top_left.y
     }
     pub fn offset(&mut self, vector: Vec2) {
         self.top_left.x += vector.x;
