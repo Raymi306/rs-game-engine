@@ -298,6 +298,44 @@ pub fn draw_text(
     }
 }
 
+pub fn draw_text_to_image(
+    font: &Font,
+    layout: &mut Layout,
+    text: &str,
+    size: f32,
+    color: Color,
+) -> Image {
+    // Note that the alpha channel in color is currently ignored
+    layout.reset(&LayoutSettings {
+        ..LayoutSettings::default()
+    });
+    layout.append(&[font], &TextStyle::new(text, size, 0));
+    let glyphs = layout.glyphs();
+    let last_glyph = glyphs.last().unwrap();
+    let width = last_glyph.x as usize + last_glyph.width;
+    let line = layout.lines().unwrap()[0];
+    let height = (line.max_ascent - line.min_descent) as usize;
+    let mut result_image = Image::new(width as u32, height as u32, vec![0; width * height * PIXEL_SIZE as usize]);
+    for glyph in glyphs {
+        let (metrics, coverage) = font.rasterize(glyph.parent, size);
+        let glyph_image_buf_32 = coverage
+            .iter()
+            .map(|mask| mask_to_u32(color.r, color.g, color.b, *mask))
+            .collect::<Vec<u32>>();
+        let glyph_image_buf = unsafe { glyph_image_buf_32.align_to::<u8>().1.to_vec() };
+        let glyph_image = Image::new(metrics.width as u32, metrics.height as u32, glyph_image_buf);
+        blit_with_alpha(
+            &glyph_image,
+            &mut result_image,
+            Vec2 {
+                x: glyph.x as i32,
+                y: glyph.y as i32,
+            },
+        );
+    }
+    result_image
+}
+
 #[inline]
 fn blend_alpha(src: u32, dst: u32) -> u32 {
     let src_r = src & 0xFF;

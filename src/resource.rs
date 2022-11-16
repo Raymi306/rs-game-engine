@@ -128,6 +128,9 @@ impl ResourceManager {
         let width = image.width();
         let height = image.height();
         let image = Image::new(width, height, image.into_vec());
+        self.add_image(image)
+    }
+    pub fn add_image(&mut self, image: Image) -> ImageHandle {
         let handle = self.create_image_handle();
         if handle._index < self._images.len() {
             self._images[handle._index] = Some(image);

@@ -145,6 +145,7 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
             let elapsed_time = t1.elapsed();
             t1 = Instant::now();
             if !game_state.on_update(elapsed_time, &mut engine) {
+                *control_flow = ControlFlow::Exit;
                 game_state.on_exit();
                 return;
             }
