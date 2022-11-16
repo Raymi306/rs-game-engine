@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use engine::{
-    drawing::{draw_line, draw_rectangle_unchecked, draw_triangle},
+    drawing::{draw_line, draw_rectangle_unchecked, fill_rectangle_unchecked, draw_triangle},
     run,
     types::{Color, Rect, Vec2},
     Context, Engine, GameState,
@@ -38,7 +38,7 @@ impl GameState for Demo {
             Vec2 { x: 300, y: 300 },
             Vec2 { x: 1000, y: 700 },
         );
-        draw_rectangle_unchecked(r1, screen, Color::new(0, 255, 0, 255));
+        fill_rectangle_unchecked(r1, screen, Color::new(0, 155, 0, 255));
         draw_rectangle_unchecked(r2, screen, Color::new(0, 0, 255, 255));
         draw_triangle(t1.0, t1.1, t1.2, screen, Color::new(255, 0, 0, 255));
         draw_line(

@@ -271,6 +271,12 @@ pub fn fill_rectangle_unchecked(rect: Rect, dst: &mut impl ImageResource, color:
     }
 }
 
+pub fn fill_rectangle(rect: Rect, dst: &mut impl ImageResource, color: Color) {
+    for y in rect.top()..rect.height as i32 {
+        draw_horizontal(Vec2::new(rect.left(), y), rect.width, dst, color);
+    }
+}
+
 pub fn draw_text(
     font: &Font,
     layout: &mut Layout,

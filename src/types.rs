@@ -5,6 +5,18 @@ pub use fontdue::FontSettings;
 
 macro_rules! impl_common_vec_traits {
     ($name : ident, $type : ident) => {
+        impl $name {
+            pub fn offset_x(&mut self, val: $type) {
+                self.x += val;
+            }
+            pub fn offset_y(&mut self, val: $type) {
+                self.y += val;
+            }
+            pub fn offset(&mut self, val: $name) {
+                *self += val;
+            }
+        }
+
         impl Add for $name {
             type Output = Self;
             fn add(self, other: Self) -> Self {
@@ -181,6 +193,12 @@ impl Rect {
     pub fn offset(&mut self, vector: Vec2) {
         self.top_left.x += vector.x;
         self.top_left.y += vector.y;
+    }
+    pub fn offset_x(&mut self, val: i32) {
+        self.top_left.x += val;
+    }
+    pub fn offset_y(&mut self, val: i32) {
+        self.top_left.y += val;
     }
     pub const fn bottom_left(&self) -> Vec2 {
         Vec2 {
