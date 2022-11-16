@@ -1,40 +1,95 @@
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+pub use winit::event::VirtualKeyCode;
+pub use winit_input_helper::WinitInputHelper;
+pub use fontdue::FontSettings;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+macro_rules! impl_common_vec_traits {
+    ($name : ident, $type : ident) => {
+        impl Add for $name {
+            type Output = Self;
+            fn add(self, other: Self) -> Self {
+                Self {
+                    x: self.x + other.x,
+                    y: self.y + other.y,
+                }
+            }
+        }
+
+        impl AddAssign for $name {
+            fn add_assign(&mut self, other: Self) {
+                *self = Self {
+                    x: self.x + other.x,
+                    y: self.y + other.y,
+                }
+            }
+        }
+
+        impl Sub for $name {
+            type Output = Self;
+            fn sub(self, other: Self) -> Self {
+                Self {
+                    x: self.x - other.x,
+                    y: self.y - other.y,
+                }
+            }
+        }
+
+        impl SubAssign for $name {
+            fn sub_assign(&mut self, other: Self) {
+                *self = Self {
+                    x: self.x - other.x,
+                    y: self.y - other.y,
+                }
+            }
+        }
+
+        impl Mul<$type> for $name {
+            type Output = Self;
+            fn mul(self, other: $type) -> Self {
+                Self {
+                    x: self.x * other,
+                    y: self.y * other,
+                }
+            }
+        }
+
+        impl MulAssign<$type> for $name {
+            fn mul_assign(&mut self, other: $type) {
+                *self = Self {
+                    x: self.x * other,
+                    y: self.y * other,
+                }
+            }
+        }
+
+        impl Div<$type> for $name {
+            type Output = Self;
+            fn div(self, other: $type) -> Self {
+                Self {
+                    x: self.x / other,
+                    y: self.y / other,
+                }
+            }
+        }
+
+        impl DivAssign<$type> for $name {
+            fn div_assign(&mut self, other: $type) {
+                *self = Self {
+                    x: self.x / other,
+                    y: self.y / other,
+                }
+            }
+        }
+    };
+}
+
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Vec2 {
     pub x: i32,
     pub y: i32,
 }
 
-impl Add for Vec2 {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Sub for Vec2 {
-    type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl Mul<i32> for Vec2 {
-    type Output = Self;
-    fn mul(self, other: i32) -> Self {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
-        }
-    }
-}
+impl_common_vec_traits!(Vec2, i32);
 
 impl From<Vec2F> for Vec2 {
     fn from(item: Vec2F) -> Self {
@@ -46,111 +101,123 @@ impl From<Vec2F> for Vec2 {
 }
 
 impl Vec2 {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub const fn new(x: i32, y: i32) -> Self {
         Self { x, y }
+    }
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt((self.x * self.x + self.y * self.y) as f32)
+    }
+    pub fn normalize(&self) -> Vec2F {
+        let magnitude = self.magnitude();
+        if magnitude > 0.0 {
+            Vec2F::from(*self) / magnitude
+        } else {
+            Vec2F::from(*self)
+        }
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Vec2F {
     pub x: f32,
     pub y: f32,
 }
 
-impl Add for Vec2F {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
+impl_common_vec_traits!(Vec2F, f32);
 
-impl Sub for Vec2F {
-    type Output = Self;
-    fn sub(self, other: Self) -> Self {
+impl From<Vec2> for Vec2F {
+    fn from(item: Vec2) -> Self {
         Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl Mul<f32> for Vec2F {
-    type Output = Self;
-    fn mul(self, other: f32) -> Self {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
+            x: item.x as f32,
+            y: item.y as f32,
         }
     }
 }
 
 impl Vec2F {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
+    }
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt(self.x * self.x + self.y * self.y)
+    }
+    pub fn normalize(&self) -> Self {
+        let magnitude = self.magnitude();
+        if magnitude > 0.0 {
+            *self / magnitude
+        } else {
+            Self { x: 0.0, y: 0.0 }
+        }
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Rect {
-    _top_left: Vec2,
+    pub top_left: Vec2,
     pub width: u32,
     pub height: u32,
 }
 
 impl Rect {
-    pub fn new(top_left: Vec2, width: u32, height: u32) -> Self {
+    pub const fn new(top_left: Vec2, width: u32, height: u32) -> Self {
         Self {
-            _top_left: top_left,
+            top_left,
             width,
             height,
         }
     }
+    pub const fn point_intersects(&self, point: Vec2) -> bool {
+        point.x >= self.left()
+            && point.x <= self.right()
+            && point.y >= self.top()
+            && point.y <= self.bottom()
+    }
+    pub const fn intersects(&self, other: &Self) -> bool {
+        self.top_left.x < other.top_left.x + other.width as i32
+            && self.top_left.x + self.width as i32 > other.top_left.x
+            && self.top_left.y < other.top_left.y + other.height as i32
+            && self.height as i32 + self.top_left.y > other.top_left.y
+    }
     pub fn offset(&mut self, vector: Vec2) {
-        self._top_left.x += vector.x;
-        self._top_left.y += vector.y;
+        self.top_left.x += vector.x;
+        self.top_left.y += vector.y;
     }
-    pub fn bottom_left(&self) -> Vec2 {
+    pub const fn bottom_left(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x,
-            y: self._top_left.y + self.height as i32,
+            x: self.top_left.x,
+            y: self.top_left.y + self.height as i32,
         }
     }
-    pub fn bottom_right(&self) -> Vec2 {
+    pub const fn bottom_right(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x + self.width as i32,
-            y: self._top_left.y + self.height as i32,
+            x: self.top_left.x + self.width as i32,
+            y: self.top_left.y + self.height as i32,
         }
     }
-    pub fn top_left(&self) -> Vec2 {
-        self._top_left
-    }
-    pub fn top_right(&self) -> Vec2 {
+    pub const fn top_right(&self) -> Vec2 {
         Vec2 {
-            x: self._top_left.x + self.width as i32,
-            y: self._top_left.y,
+            x: self.top_left.x + self.width as i32,
+            y: self.top_left.y,
         }
     }
-    pub fn area(&self) -> u32 {
+    pub const fn area(&self) -> u32 {
         self.width * self.height
     }
-    pub fn left(&self) -> i32 {
-        self._top_left.x
+    pub const fn left(&self) -> i32 {
+        self.top_left.x
     }
-    pub fn right(&self) -> i32 {
-        self._top_left.x + self.width as i32
+    pub const fn right(&self) -> i32 {
+        self.top_left.x + self.width as i32
     }
-    pub fn top(&self) -> i32 {
-        self._top_left.y
+    pub const fn top(&self) -> i32 {
+        self.top_left.y
     }
-    pub fn bottom(&self) -> i32 {
-        self._top_left.y + self.height as i32
+    pub const fn bottom(&self) -> i32 {
+        self.top_left.y + self.height as i32
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -159,7 +226,7 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 }
@@ -209,7 +276,7 @@ mod tests {
     #[test]
     fn test_rect_simple() {
         let rect = Rect::new(Vec2::new(0, 0), 10, 10);
-        let top_left = rect.top_left();
+        let top_left = rect.top_left;
         let top_right = rect.top_right();
         let bottom_left = rect.bottom_left();
         let bottom_right = rect.bottom_right();
