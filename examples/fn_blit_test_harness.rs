@@ -20,6 +20,12 @@ pub struct Demo {
     current_func: TestFn,
 }
 
+impl Default for Demo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Demo {
     pub fn new() -> Self {
         let ctx = Context {
@@ -36,14 +42,14 @@ impl Demo {
 
 fn get_images() -> (Image, Image) {
     let screen_buf = unsafe {
-        [0xFF000000 as u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize]
+        [0xFF000000_u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize]
             .align_to::<u8>()
             .1
             .to_vec()
     };
     let screen = Image::new(SCREEN_WIDTH, SCREEN_HEIGHT, screen_buf);
     let image_buf = unsafe {
-        [0xFFCCBBAA as u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize]
+        [0xFFCCBBAA_u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize]
             .align_to::<u8>()
             .1
             .to_vec()
@@ -104,7 +110,7 @@ impl GameState for Demo {
             .set_title(&format!("{}ms", elapsed_time.as_millis()));
         let screen = &mut engine.screen;
         if engine.input.key_released(VirtualKeyCode::M) {
-            self.current_func = (((self.current_func as u8 + 1) % 5) as u8).into();
+            self.current_func = ((self.current_func as u8 + 1) % 5).into();
         }
         let mut result = match self.current_func {
             TestFn::Normal => test_blit_normal(),

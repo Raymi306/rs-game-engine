@@ -19,6 +19,12 @@ pub struct Demo {
     font_handle_1: Option<FontHandle>,
 }
 
+impl Default for Demo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Demo {
     pub fn new() -> Self {
         let ctx = Context {

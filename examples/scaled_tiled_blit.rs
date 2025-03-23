@@ -19,6 +19,12 @@ pub struct Demo {
     image_handle_1: Option<ImageHandle>,
 }
 
+impl Default for Demo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Demo {
     pub fn new() -> Self {
         let ctx = Context {

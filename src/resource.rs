@@ -59,7 +59,7 @@ impl ImageResource for Image {
     }
     #[inline]
     fn get_buf_u32(&self) -> &[u32] {
-        unsafe { &self.buf.align_to::<u32>().1 }
+        unsafe { self.buf.align_to::<u32>().1 }
     }
     #[inline]
     fn get_buf_u32_mut(&mut self) -> &mut [u32] {
@@ -69,6 +69,12 @@ impl ImageResource for Image {
 
 pub struct FontHelper {
     pub default_layout: Layout,
+}
+
+impl Default for FontHelper {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl FontHelper {
@@ -86,6 +92,12 @@ pub struct ResourceManager {
     _fonts: Vec<Option<Font>>,
     _available_image_indexes: Vec<usize>,
     _available_font_indexes: Vec<usize>,
+}
+
+impl Default for ResourceManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ResourceManager {

@@ -14,6 +14,12 @@ pub struct Demo {
     ctx: Context,
 }
 
+impl Default for Demo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Demo {
     pub fn new() -> Self {
         let ctx = Context {

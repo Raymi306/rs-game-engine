@@ -118,7 +118,7 @@ pub fn run<T: GameState + 'static>(mut game_state: T) {
     let resource_manager = ResourceManager::new();
     let mut engine = Engine {
         screen: Screen {
-            pixels: pixels,
+            pixels,
             screen_width: ctx.screen_width,
             screen_height: ctx.screen_height,
         },

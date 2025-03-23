@@ -30,6 +30,12 @@ pub struct Demo {
     mode: Mode,
 }
 
+impl Default for Demo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Demo {
     pub fn new() -> Self {
         let ctx = Context {
@@ -97,7 +103,7 @@ impl GameState for Demo {
             }
         }
         if engine.input.key_held(VirtualKeyCode::Left) {
-            if self.mode == Mode::MoveRect && self.rect.left() - 1 >= 0 {
+            if self.mode == Mode::MoveRect && self.rect.left() > 0 {
                 self.rect.offset(Vec2 { x: -1, y: 0 });
             } else if self.mode == Mode::MovePosition {
                 self.position.x -= 1;
@@ -111,7 +117,7 @@ impl GameState for Demo {
             }
         }
         if engine.input.key_held(VirtualKeyCode::Up) {
-            if self.mode == Mode::MoveRect && self.rect.top() - 1 >= 0 {
+            if self.mode == Mode::MoveRect && self.rect.top() > 0 {
                 self.rect.offset(Vec2 { x: 0, y: -1 });
             } else if self.mode == Mode::MovePosition {
                 self.position.y -= 1;

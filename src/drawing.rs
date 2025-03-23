@@ -87,8 +87,8 @@ pub fn blit_rect(
     let src_buf = src.get_buf_u32();
     let dst_buf = dst.get_buf_u32_mut();
 
-    for y in min_y..max_y as i32 {
-        for x in min_x..max_x as i32 {
+    for y in min_y..max_y {
+        for x in min_x..max_x {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
             let src_index =
                 (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
@@ -119,8 +119,8 @@ pub fn blit_rect_with_alpha(
     let src_buf = src.get_buf_u32();
     let dst_buf = dst.get_buf_u32_mut();
 
-    for y in min_y..max_y as i32 {
-        for x in min_x..max_x as i32 {
+    for y in min_y..max_y {
+        for x in min_x..max_x {
             let dst_index = (position.x + x + (y + position.y) * dst_width) as usize;
             let src_index =
                 (x + src_rect.top_left.x + (y + src_rect.top_left.y) * src_width) as usize;
@@ -185,15 +185,15 @@ pub fn draw_line(start: Vec2, end: Vec2, dst: &mut impl ImageResource, color: Co
             if cur_x == end.x {
                 break;
             }
-            error = error + distance_y;
-            cur_x = cur_x + slope_x;
+            error += distance_y;
+            cur_x += slope_x;
         }
         if error_2 <= distance_x {
             if cur_y == end.y {
                 break;
             }
-            error = error + distance_x;
-            cur_y = cur_y + slope_y;
+            error += distance_x;
+            cur_y += slope_y;
         }
     }
 }
@@ -388,14 +388,14 @@ mod tests {
 
     fn get_images() -> (Image, Image) {
         let screen_buf = unsafe {
-            [0xFF000000 as u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize]
+            [0xFF000000_u32; (SCREEN_WIDTH * SCREEN_HEIGHT) as usize]
                 .align_to::<u8>()
                 .1
                 .to_vec()
         };
         let screen = Image::new(SCREEN_WIDTH, SCREEN_HEIGHT, screen_buf);
         let image_buf = unsafe {
-            [0xFFCCBBAA as u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize]
+            [0xFFCCBBAA_u32; (IMAGE_WIDTH * IMAGE_HEIGHT) as usize]
                 .align_to::<u8>()
                 .1
                 .to_vec()
