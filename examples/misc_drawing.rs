@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use engine::{
-    drawing::{draw_line, draw_rectangle_unchecked, fill_rectangle_unchecked, draw_triangle},
+    drawing::{draw_line, draw_rectangle_unchecked, draw_triangle, fill_rectangle_unchecked},
     run,
     types::{Color, Rect, Vec2},
     Context, Engine, GameState,

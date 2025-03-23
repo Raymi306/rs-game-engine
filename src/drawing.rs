@@ -327,7 +327,11 @@ pub fn draw_text_to_image(
     let width = last_glyph.x as usize + last_glyph.width;
     let line = layout.lines().unwrap()[0];
     let height = (line.max_ascent - line.min_descent) as usize;
-    let mut result_image = Image::new(width as u32, height as u32, vec![0; width * height * PIXEL_SIZE as usize]);
+    let mut result_image = Image::new(
+        width as u32,
+        height as u32,
+        vec![0; width * height * PIXEL_SIZE as usize],
+    );
     for glyph in glyphs {
         let (metrics, coverage) = font.rasterize(glyph.parent, size);
         let glyph_image_buf_32 = coverage
@@ -501,10 +505,12 @@ mod tests {
     }
 
     //TODO
+    /*
     fn test_blit_rect(rect: Rect, x: i32, y: i32) -> Image {
         let (mut screen, image) = get_images();
         let position = Vec2::new(x, y);
         blit_rect(&image, rect, &mut screen, position);
         screen
     }
+    */
 }
