@@ -159,19 +159,9 @@ fn plot(x: i32, y: i32, dst: &mut impl ImageResource, color: Color) {
 pub fn draw_line(start: Vec2, end: Vec2, dst: &mut impl ImageResource, color: Color) {
     // Bresenham's algorithm shamelessly stolen from wikipedia's pseudocode
     let distance_x = (end.x - start.x).abs();
-    let slope_x;
-    if start.x < end.x {
-        slope_x = 1;
-    } else {
-        slope_x = -1;
-    }
+    let slope_x = if start.x < end.x { 1 } else { -1 };
     let distance_y = -(end.y - start.y).abs();
-    let slope_y;
-    if start.y < end.y {
-        slope_y = 1;
-    } else {
-        slope_y = -1;
-    }
+    let slope_y = if start.y < end.y { 1 } else { -1 };
     let mut error = distance_x + distance_y;
     let mut cur_x = start.x;
     let mut cur_y = start.y;
