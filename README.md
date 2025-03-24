@@ -7,7 +7,7 @@ The workflow centers around creating an object implementing the `GameState` trai
 - `on_update`
 - `on_exit`
 
-This simple workflow is inspired by the simplicity of the [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine)
+This workflow is inspired by the simplicity of the [Pixel Game Engine](https://github.com/OneLoneCoder/olcPixelGameEngine)
 
 Please check out the [examples](examples)!
 In addition to showing off how to use various features, they also function as a set of tests to ensure everything is working as expected.
